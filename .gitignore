@@ -1,0 +1,41 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules
+dist
+dist-ssr
+.vite
+
+# Local env
+.env
+.env.*
+
+# Local machine files
+*.local
+.DS_Store
+
+# Editor settings
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# OS/IDE files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript
+*.tsbuildinfo
+
+# Package managers (optional, pick one)
+yarn.lock
+pnpm-lock.yaml
