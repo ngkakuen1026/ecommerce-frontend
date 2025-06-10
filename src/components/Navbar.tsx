@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Bell,
-  TableOfContents,
-  User,
-  X,
-} from "lucide-react";
+import { Bell, TableOfContents, User, X, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
@@ -15,7 +10,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md px-6 py-4">
+    <nav className="bg-gray-50 shadow-md px-6 py-4">
       <div className="mx-auto flex items-center justify-between gap-10">
         {/* Logo */}
         <div className="flex-none">
@@ -47,6 +42,9 @@ const Navbar = () => {
           <div className="inline-block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 font-medium text-xl hover:opacity-50 cursor-pointer">
             <Bell />
           </div>
+          <div className="inline-block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 font-medium text-xl hover:opacity-50 cursor-pointer">
+            <ShoppingCart />
+          </div>
           <Link
             to="/login"
             className="inline-block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 font-medium text-xl hover:opacity-50"
@@ -56,12 +54,28 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Icon */}
-        <div className="lg:hidden">
-          <button onClick={toggleMobileMenu} aria-label="Toggle Menu">
+        <div className="lg:hidden flex items-center gap-4">
+          <button
+            aria-label="Notifications"
+            className="text-gray-700 hover:text-blue-600"
+          >
+            <Bell className="w-6 h-6" />
+          </button>
+          <button
+            aria-label="Shopping Cart"
+            className="text-gray-700 hover:text-blue-600"
+          >
+            <ShoppingCart className="w-6 h-6" />
+          </button>
+          <button
+            onClick={toggleMobileMenu}
+            aria-label="Toggle Menu"
+            className="text-gray-700 hover:text-blue-600"
+          >
             {isOpen ? (
-              <X className="w-7 h-7 text-gray-800" />
+              <X className="w-7 h-7" />
             ) : (
-              <TableOfContents className="w-7 h-7 text-gray-800" />
+              <TableOfContents className="w-7 h-7" />
             )}
           </button>
         </div>

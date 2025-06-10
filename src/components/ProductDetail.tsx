@@ -3,13 +3,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Product, ProductImage } from "../types/product";
 import type { Categories } from "../types/category";
-import { categoryAPI, prodcutAPI } from "../services/http-api";
+import type { User } from "../types/user";
+import { categoryAPI, prodcutAPI, userAPI } from "../services/http-api";
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import ProductReview from "./ProductReview";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [category, setCategory] = useState<Categories | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
 
   useEffect(() => {
@@ -19,10 +23,15 @@ const ProductDetail = () => {
         const product = res.data.product;
         setProduct(product);
         setSelectedImage(product.images[0]?.image_url);
-        return axios.get(`${categoryAPI.url}/${product.category_id}`);
+
+        return Promise.all([
+          axios.get(`${categoryAPI.url}/${product.category_id}`),
+          axios.get(`${userAPI.url}/${product.user_id}`),
+        ]);
       })
-      .then((res) => {
-        setCategory(res.data.category);
+      .then(([categoryRes, userRes]) => {
+        setCategory(categoryRes.data.category);
+        setUser(userRes.data.users?.[0]); //Access response array first item: username
       })
       .catch((err) => console.error("Failed to load product:", err));
   }, [id]);
@@ -35,7 +44,7 @@ const ProductDetail = () => {
         <img
           src={selectedImage}
           alt={product.title}
-          className="w-full h-[500px] object-contain mb-4 rounded border"
+          className="md:w-full md:h-[500px] object-contain mb-4 rounded border w-1/2"
         />
         <div className="flex gap-4">
           {product.images.map((img: ProductImage) => (
@@ -44,7 +53,7 @@ const ProductDetail = () => {
               src={img.image_url}
               onClick={() => setSelectedImage(img.image_url)}
               alt="Thumbnail"
-              className={`w-36 h-36 object-cover rounded border cursor-pointer ${
+              className={`w-24 h-24 object-cover rounded border cursor-pointer transition delay-75 hover:-translate-y-1 hover:scale-110 md:w-36 md:h-36 ${
                 selectedImage === img.image_url
                   ? "border-blue-500"
                   : "border-gray-300"
@@ -56,10 +65,39 @@ const ProductDetail = () => {
 
       {/* Right: Details */}
       <div className="space-y-6">
-        <p className="text-gray-500">
-          Categories &gt; {category?.name} &gt; {product.title}
-        </p>
+        <div className="flex justify-between gap-2">
+          <p className="text-gray-500 items-center">
+            <Link to={`/categories`} className="hover:opacity-50">
+              Categories
+            </Link>{" "}
+            &gt;{" "}
+            <Link
+              to={`/categories/${category?.name}`}
+              className="hover:opacity-50"
+            >
+              {category?.name}
+            </Link>{" "}
+            &gt; {product.title}
+          </p>
+          <Link
+            to="/"
+            className="text-gray-500 cursor-pointer hover:underline "
+          >
+            Back
+          </Link>
+        </div>
+
         <h1 className="text-3xl font-bold">{product.title}</h1>
+        <Link to="/" className="hover:opacity-50">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-light">Posted by {user?.username}</h1>
+            <img
+              src={user?.profile_image ?? "/default-avatar.png"}
+              alt="user profile image"
+              className="h-10 w-10 rounded-full md:h-12 md:w-12 object-cover"
+            />
+          </div>
+        </Link>
 
         {/* Rating */}
         <div className="flex items-center gap-2 text-blue-500">
@@ -74,7 +112,7 @@ const ProductDetail = () => {
           <span className="text-sm text-gray-600 ml-2">2,975,130 Reviews</span>
         </div>
 
-        <div className="mt-6 text-gray-700 space-y-4 leading-relaxed">
+        <div className="mt-6 text-gray-700 space-y-4 leading-relaxed text-2xl">
           {product.description}
         </div>
 
@@ -87,15 +125,8 @@ const ProductDetail = () => {
         </button>
       </div>
 
-      <div className="lg:col-span-2 mt-12">
-        <div className="border-b border-gray-300 flex gap-10 text-lg font-medium">
-          <button className="py-2 border-b-2 border-blue-400 text-gray-800">
-            User Comments
-          </button>
-        </div>
-        <div className="mt-6 text-gray-700 space-y-4 leading-relaxed">
-          {product.description}
-        </div>
+      <div className="lg:col-span-2 space-y-10 ">
+        <ProductReview productId={product.id.toString()} />
       </div>
     </div>
   );

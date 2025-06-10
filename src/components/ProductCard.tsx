@@ -9,7 +9,7 @@ interface Props {
 const ProductCard: React.FC<Props> = ({ product }) => {
   return (
     <Link to={`/product/${product.id}`} className="block">
-      <div className="border rounded-lg p-4 shadow hover:shadow-md transition hover:scale-[1.01]">
+      <div className="border rounded-lg p-4 shadow hover:shadow-md ease-in-out transition delay-75 hover:scale-[1.05]">
         <img
           src={product.image_url}
           alt={product.title}

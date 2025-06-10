@@ -8,10 +8,11 @@ import { Contact } from "lucide-react";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProductDetail from "./components/ProductDetail";
+import Category from "./pages/Category";
 
 const App = () => {
   return (
-    <div className="bg-gray-50">
+    <div>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/category" element={<Category />} />
         </Routes>
         <Footer />
       </BrowserRouter>
