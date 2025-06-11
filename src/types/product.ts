@@ -8,6 +8,7 @@ export interface Product {
   quantity: number;
   image_url: string;
   images: ProductImage[];
+  created_at: string;
 }
 
 export interface ProductImage {

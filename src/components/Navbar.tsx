@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Bell, TableOfContents, User, X, ShoppingCart } from "lucide-react";
+import {
+  Bell,
+  TableOfContents,
+  User,
+  X,
+  ShoppingCart,
+  Heart,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
@@ -41,6 +48,9 @@ const Navbar = () => {
         <div className="hidden lg:flex flex-none gap-4">
           <div className="inline-block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 font-medium text-xl hover:opacity-50 cursor-pointer">
             <Bell />
+          </div>
+          <div className="inline-block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 font-medium text-xl hover:opacity-50 cursor-pointer">
+            <Heart />
           </div>
           <div className="inline-block w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 font-medium text-xl hover:opacity-50 cursor-pointer">
             <ShoppingCart />

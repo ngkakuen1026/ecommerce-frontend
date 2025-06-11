@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 const HeroBanner = () => {
   return (
-    <section className="bg-gradient-to-r from-cyan-200 to-cyan-400 py-20 px-8">
+    <section className="herobanner-bg bg-gradient-to-r from-cyan-200 to-cyan-400 py-20 px-8">
       <div className="x-auto flex flex-col-reverse md:flex-row items-center">
         <div className="flex-1 text-center pt-8 md:text-left">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -29,7 +29,7 @@ const HeroBanner = () => {
           <img
             src="../src/assets/herobanner.png"
             alt="Hero Banner"
-            className="w-full mx-auto rounded-lg shadow"
+            className="w-full mx-auto rounded-lg shadow-lg"
             // className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto rounded-lg shadow-lg"
           />
         </div>

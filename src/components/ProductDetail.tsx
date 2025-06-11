@@ -1,9 +1,9 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Product, ProductImage } from "../types/product";
 import type { Categories } from "../types/category";
-import type { User } from "../types/user";
+import type { UserType } from "../types/user";
 import { categoryAPI, prodcutAPI, userAPI } from "../services/http-api";
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -13,8 +13,9 @@ const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [category, setCategory] = useState<Categories | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -31,21 +32,35 @@ const ProductDetail = () => {
       })
       .then(([categoryRes, userRes]) => {
         setCategory(categoryRes.data.category);
-        setUser(userRes.data.users?.[0]); //Access response array first item: username
+        setUser(userRes.data.users?.[0]); //Access first item of: username
       })
       .catch((err) => console.error("Failed to load product:", err));
   }, [id]);
 
+  useEffect(()=> {
+
+  })
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   if (!product) return <div className="p-10">Loading...</div>;
 
   return (
-    <div className="p-10 max-w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
+    <div className="p-10 max-w-full grid grid-cols-1 lg:grid-cols-2 gap-10">
       <div>
-        <img
-          src={selectedImage}
-          alt={product.title}
-          className="md:w-full md:h-[500px] object-contain mb-4 rounded border w-1/2"
-        />
+        {selectedImage ? (
+          <img
+            src={selectedImage}
+            alt={product.title}
+            className="md:w-full md:h-[500px] object-contain mb-4 rounded border w-1/2"
+          />
+        ) : (
+          <div className="w-1/2 h-[500px] flex items-center justify-center bg-gray-100 text-gray-500 rounded border">
+            No image available
+          </div>
+        )}
         <div className="flex gap-4">
           {product.images.map((img: ProductImage) => (
             <img
@@ -79,25 +94,37 @@ const ProductDetail = () => {
             </Link>{" "}
             &gt; {product.title}
           </p>
-          <Link
-            to="/"
-            className="text-gray-500 cursor-pointer hover:underline "
+          <button
+            onClick={handleGoBack}
+            className="text-gray-500 cursor-pointer hover:underline"
           >
             Back
-          </Link>
+          </button>
         </div>
 
         <h1 className="text-3xl font-bold">{product.title}</h1>
-        <Link to="/" className="hover:opacity-50">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-light">Posted by {user?.username}</h1>
-            <img
-              src={user?.profile_image ?? "/default-avatar.png"}
-              alt="user profile image"
-              className="h-10 w-10 rounded-full md:h-12 md:w-12 object-cover"
-            />
-          </div>
-        </Link>
+        <div className="flex items-center">
+          <h1 className="text-base font-light">
+            Posted at:{" "}
+            <span className="italic">
+              {new Date(product.created_at).toLocaleDateString("en-GB")}
+            </span>
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-light">
+            Uploaded by{" "}
+            <Link to="/" className="hover:opacity-50">
+              {user?.username}
+            </Link>
+          </h1>
+          <img
+            src={user?.profile_image ?? "/default-avatar.png"}
+            alt="user profile image"
+            className="h-10 w-10 rounded-full md:h-12 md:w-12 object-cover"
+          />
+        </div>
 
         {/* Rating */}
         <div className="flex items-center gap-2 text-blue-500">

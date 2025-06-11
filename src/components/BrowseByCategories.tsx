@@ -18,6 +18,7 @@ import {
   Gamepad2,
   CircleUser,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const BrowseByCategories = () => {
   const [categories, setCategories] = useState<Categories[]>([]);
@@ -26,8 +27,9 @@ const BrowseByCategories = () => {
     axios
       .get(`${categoryAPI.url}`)
       .then((res) => {
-        console.log("API response for Categories:", res.data);
-        setCategories(res.data.categories);
+        // console.log("API response for Categories:", res.data);
+        const fetchedCategirues = res.data.categories;
+        setCategories(fetchedCategirues.slice(0, 10));
       })
       .catch((err) => console.error("Failed to fetch categories:", err));
   }, []);
@@ -35,9 +37,11 @@ const BrowseByCategories = () => {
   return (
     <div className="bg-gray-50 p-10">
       <h1 className="pb-2 text-4xl font-bold">Explore the Categories</h1>
-      <h2 className="pb-5 text-lg text-gray-600">View all Categories</h2>
+      <h2 className="pb-5 text-lg text-gray-600 hover:opacity-50">
+        <Link to="/categories">View all categories...</Link>
+      </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {categories.map((category) => (
           <div
             key={category.id}
@@ -91,7 +95,6 @@ const IconForCategory = ({
     return <PencilRuler className={className} />;
   if (key.includes("toys") || key.includes("games") || key.includes("hobbies"))
     return <Gamepad2 className={className} />;
-
   return <CircleUser className={className} />;
 };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Star } from "lucide-react";
+import { Pencil, Star } from "lucide-react";
 import type { Review } from "../types/review";
 import { prodcutAPI, userAPI } from "../services/http-api";
 
@@ -133,6 +133,7 @@ const ProductReview = ({ productId }: Props) => {
         <div className="flex justify-center">
           <button className="mt-4 px-4 py-2 w-1/2 border border-gray-400 rounded-lg hover:bg-gray-100 text-sm">
             Write a review
+            <Pencil />
           </button>
         </div>
       </div>
