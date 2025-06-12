@@ -10,6 +10,22 @@ import Login from "./pages/Login";
 import ProductDetail from "./components/ProductDetail";
 import Category from "./pages/Category";
 import Profile from "./pages/Profile";
+import { MessageCircle } from "lucide-react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+
+const FloatingChatButton = () => {
+  const { isLoggedIn } = useAuth();
+
+  if (!isLoggedIn) return null;
+
+  return (
+    <button
+      className="fixed bottom-6 right-6 z-50 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition"
+    >
+      <MessageCircle className="w-8 h-8" />
+    </button>
+  );
+};
 
 const AppContent = () => {
   const location = useLocation();
@@ -31,13 +47,16 @@ const AppContent = () => {
         <Route path="/user/profile" element={<Profile />} />
       </Routes>
       {!shouldHideFooter && <Footer />}
+      <FloatingChatButton />
     </div>
   );
 };
 
 const App = () => (
   <BrowserRouter>
-    <AppContent />
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   </BrowserRouter>
 );
 

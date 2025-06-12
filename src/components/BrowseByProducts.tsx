@@ -12,7 +12,6 @@ const BrowseByProducts = () => {
     axios
       .get(`${prodcutAPI.url}`)
       .then((res) => {
-        // console.log("API response for Product Data:", res.data);
         const fetchedProducts = res.data.products;
         setProducts(fetchedProducts.slice(0, 12));
       })
