@@ -20,10 +20,16 @@ const BrowseByProducts = () => {
 
   return (
     <div className="p-10 bg-white">
-      <h1 className="pb-2 text-4xl font-bold">Product On Sale</h1>
-      <Link to="/categories">
-        <h2 className="pb-5 text-lg text-gray-600 hover:opacity-50">View more products...</h2>
-      </Link>
+      <div className="flex items-center justify-between pb-5">
+        <h1 className="text-4xl font-bold">Product On Sale</h1>
+        <Link
+          to="/categories"
+          className="text-lg text-gray-600 hover:opacity-50 whitespace-nowrap"
+        >
+          View all categories...
+        </Link>
+      </div>
+
       <div className="grid max-w-full grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 drop-shadow-lg">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />

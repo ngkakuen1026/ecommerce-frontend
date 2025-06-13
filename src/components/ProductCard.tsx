@@ -12,7 +12,7 @@ const ProductCard: React.FC<Props> = ({ product }) => {
   return (
     <Link to={`/product/${product.id}`} className="block">
       <div className="border rounded-lg p-4 shadow hover:shadow-md ease-in-out transition delay-75 hover:scale-[1.05]">
-        <div className="w-full h-72 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+        <div className="w-full h-96 bg-gray-100 rounded flex items-center justify-center overflow-hidden ">
           {hasImage ? (
             <img
               src={product.image_url}

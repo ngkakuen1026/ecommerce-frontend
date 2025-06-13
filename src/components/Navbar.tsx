@@ -10,13 +10,9 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import authAxios from "../services/authAxios";
-import { userAPI } from "../services/http-api";
-import type { UserType } from "../types/user";
 
 const Navbar = () => {
-  const [user, setUser] = useState<UserType | null>(null);
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth();
   const navigate = useNavigate();
 
   const [showMenu, setShowMenu] = useState(false);
@@ -33,16 +29,6 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
-
-  useEffect(() => {
-    authAxios
-      .get(`${userAPI.url}/me`)
-      .then((res) => {
-        const fetchedUser = res.data.user;
-        setUser(fetchedUser);
-      })
-      .catch((err) => console.error("Failed to fetch user:", err));
   }, []);
 
   return (
@@ -120,7 +106,7 @@ const Navbar = () => {
                   {/* Mobile-only nav links */}
                   <div className="flex flex-col lg:hidden border-t pt-2 space-y-1">
                     {[
-                      { label: "Home", path: "/"},
+                      { label: "Home", path: "/" },
                       { label: "About", path: "/about" },
                       { label: "Contact", path: "/contact" },
                       { label: "FAQ", path: "/faq" },

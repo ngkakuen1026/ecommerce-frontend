@@ -36,10 +36,15 @@ const BrowseByCategories = () => {
 
   return (
     <div className="bg-gray-50 p-10">
-      <h1 className="pb-2 text-4xl font-bold">Explore the Categories</h1>
-      <h2 className="pb-5 text-lg text-gray-600 hover:opacity-50">
-        <Link to="/categories">View all categories...</Link>
-      </h2>
+      <div className="flex items-center justify-between pb-5">
+        <h1 className="text-4xl font-bold">Explore the Categories</h1>
+        <Link
+          to="/categories"
+          className="text-lg text-gray-600 hover:opacity-50 whitespace-nowrap"
+        >
+          View all categories...
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {categories.map((category) => (

@@ -131,9 +131,9 @@ const ProductReview = ({ productId }: Props) => {
         })}
 
         <div className="flex justify-center">
-          <button className="mt-4 px-4 py-2 w-1/2 border border-gray-400 rounded-lg hover:bg-gray-100 text-sm">
+          <button className="mt-4 px-4 py-2 w-1/2 border border-gray-400 rounded-lg hover:bg-gray-100 text-sm flex items-center justify-center gap-2">
             Write a review
-            <Pencil />
+            <Pencil className="w-5 h-5" />
           </button>
         </div>
       </div>
