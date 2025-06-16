@@ -2,23 +2,61 @@ import { useEffect, useState } from "react";
 import type { Categories } from "../types/category";
 import type { Product } from "../types/product";
 import axios from "axios";
-import { categoryAPI, prodcutAPI } from "../services/http-api";
-import { Search, X } from "lucide-react";
+import { categoryAPI, productAPI } from "../services/http-api";
+import { ArrowLeft, ArrowRight, Search, X } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Category = () => {
   const [randomCategories, setRandomCategories] = useState<Categories[]>([]);
   const [categories, setCategories] = useState<Categories[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeSearchQuery, setActiveSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Categories | null>(
     null
   );
   const [loading, setLoading] = useState(false);
 
-  //Sorting
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Sorting
   const [sortOption, setSortOption] = useState("");
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 12;
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+  const totalPages = Math.ceil(products.length / productsPerPage);
+
+  // Fetch categories
+  useEffect(() => {
+    axios
+      .get(`${categoryAPI.url}`)
+      .then((res) => {
+        const all = res.data.categories;
+        const random = all.sort(() => 0.5 - Math.random()).slice(0, 4);
+        setRandomCategories(random);
+        setCategories(all);
+      })
+      .catch((err) => console.error("Failed to fetch categories:", err));
+  }, []);
+
+  // Fetch all products (initial load fallback)
+  useEffect(() => {
+    axios
+      .get(productAPI.url)
+      .then((res) => setProducts(res.data.products))
+      .catch((err) => console.error("Failed to fetch products:", err));
+  }, []);
+
+  // Handle sorting
   useEffect(() => {
     if (!sortOption || products.length === 0) return;
 
@@ -42,82 +80,79 @@ const Category = () => {
     }
 
     setProducts(sorted);
-    setCurrentPage(1); // reset to first page on sort
+    setCurrentPage(1);
   }, [sortOption]);
 
-  //Product Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 12;
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-  const totalPages = Math.ceil(products.length / productsPerPage);
-
+  // Handle filter based on URL
   useEffect(() => {
-    axios
-      .get(`${categoryAPI.url}`)
-      .then((res) => {
-        const all = res.data.categories;
-        const random = all.sort(() => 0.5 - Math.random()).slice(0, 4);
-        setRandomCategories(random);
-        setCategories(all);
-      })
-      .catch((err) => console.error("Failed to fetch categories:", err));
-  }, []);
+    const params = new URLSearchParams(location.search);
+    const categoryName = params.get("name");
+    const query = params.get("query");
 
-  useEffect(() => {
-    const fetchAllProducts = async () => {
+    const fetchByCategory = async (cat: Categories) => {
       try {
-        const res = await axios.get(prodcutAPI.url);
+        setLoading(true);
+        const res = await axios.get(`${productAPI.url}/category/${cat.id}`);
         setProducts(res.data.products);
+        setSelectedCategory(cat);
+        setSearchQuery("");
+        setActiveSearchQuery("");
+        setCurrentPage(1);
       } catch (err) {
-        console.error("Failed to fetch products:", err);
+        console.error("Failed to fetch category products:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAllProducts();
-  }, []);
+    const fetchBySearch = async (term: string) => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          `${productAPI.url}/search?query=${encodeURIComponent(term)}`
+        );
+        setProducts(res.data.products);
+        setActiveSearchQuery(term);
+        setSelectedCategory(null);
+        setCurrentPage(1);
+      } catch (err) {
+        console.error("Failed to fetch search products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleCategoryClick = async (category: Categories) => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${prodcutAPI.url}/category/${category.id}`);
-      setProducts(res.data.products);
-      setCurrentPage(1);
-      setSearchQuery("");
-      setSelectedCategory(category);
-    } catch (err) {
-      console.error("Failed to fetch products by category:", err);
-    } finally {
-      setLoading(false);
+    if (categoryName && categories.length > 0) {
+      const match = categories.find(
+        (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+      );
+      if (match) fetchByCategory(match);
+    } else if (query) {
+      fetchBySearch(query);
     }
+  }, [location.search, categories]);
+  
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    navigate(`/categories?query=${encodeURIComponent(searchQuery.trim())}`);
   };
 
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      const endpoint = searchQuery
-        ? `${prodcutAPI.url}/search?query=${encodeURIComponent(searchQuery)}`
-        : `${prodcutAPI.url}`;
-      const res = await axios.get(endpoint);
-      setProducts(res.data.products);
-      setCurrentPage(1);
-    } catch (err) {
-      console.error("Failed to fetch products:", err);
-    } finally {
-      setLoading(false);
-    }
+  const handleCategoryClick = (category: Categories) => {
+    setSearchQuery("");
+    setActiveSearchQuery("");
+    setSelectedCategory(category);
+
+    navigate(`/categories?name=${encodeURIComponent(category.name)}`);
   };
 
   return (
     <div className="p-10 bg-white">
+      {/* Random Categories */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {randomCategories.map((category) => (
           <div
             key={category.id}
+            onClick={() => handleCategoryClick(category)}
             className="relative h-96 rounded-lg overflow-hidden shadow group cursor-pointer bg-cover bg-center"
             style={{ backgroundImage: `url(${category.image_url})` }}
           >
@@ -131,8 +166,11 @@ const Category = () => {
         ))}
       </div>
 
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+        {/* Left Sidebar */}
         <div className="lg:col-span-1 space-y-6">
+          {/* Search */}
           <div className="relative">
             <input
               type="text"
@@ -174,19 +212,19 @@ const Category = () => {
           </div>
         </div>
 
-        {/* Right: Products */}
+        {/* Right Product Grid */}
         <div className="lg:col-span-3">
-          {/* Top bar */}
+          {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">
-              <h2 className="text-xl font-semibold">
-                {searchQuery
-                  ? `Search Results for "${searchQuery}"`
-                  : selectedCategory
-                  ? `All products for "${selectedCategory.name}"`
-                  : "All Products"}
-              </h2>
+              {activeSearchQuery
+                ? `Search Results for "${activeSearchQuery}"`
+                : selectedCategory
+                ? `All products for "${selectedCategory.name}"`
+                : "All Products"}
             </h2>
+
+            {/* Sort / Pagination */}
             <div className="flex items-center gap-2">
               <label htmlFor="sort" className="text-sm text-gray-600">
                 Sort:
@@ -202,7 +240,7 @@ const Category = () => {
                 <option value="priceHighLow">Price: High to Low</option>
                 <option value="newest">Newest</option>
               </select>
-              {/* Pagination */}
+
               {products.length > productsPerPage && (
                 <div className="flex justify-center items-center gap-4">
                   <button
@@ -212,7 +250,7 @@ const Category = () => {
                     disabled={currentPage === 1}
                     className="px-4 py-2 rounded border text-sm disabled:opacity-50"
                   >
-                    Previous
+                    <ArrowLeft className="w-4 h-4" />
                   </button>
 
                   <span className="text-sm text-gray-700">
@@ -226,7 +264,7 @@ const Category = () => {
                     disabled={currentPage === totalPages}
                     className="px-4 py-2 rounded border text-sm disabled:opacity-50"
                   >
-                    Next
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               )}

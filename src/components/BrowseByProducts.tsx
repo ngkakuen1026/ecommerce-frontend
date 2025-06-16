@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { prodcutAPI } from "../services/http-api";
+import { productAPI } from "../services/http-api";
 import type { Product } from "../types/product";
 import ProductCard from "./ProductCard";
 import { Link } from "react-router-dom";
@@ -10,12 +10,12 @@ const BrowseByProducts = () => {
 
   useEffect(() => {
     axios
-      .get(`${prodcutAPI.url}`)
+      .get(`${productAPI.url}`)
       .then((res) => {
         const fetchedProducts = res.data.products;
         setProducts(fetchedProducts.slice(0, 12));
       })
-      .catch((err) => console.error("Failed to fetch products:", err));
+      .catch((error) => console.error("Failed to fetch products:", error));
   }, []);
 
   return (

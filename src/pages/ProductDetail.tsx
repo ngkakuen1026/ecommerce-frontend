@@ -4,10 +4,10 @@ import axios from "axios";
 import type { Product, ProductImage } from "../types/product";
 import type { Categories } from "../types/category";
 import type { UserType } from "../types/user";
-import { categoryAPI, prodcutAPI, userAPI } from "../services/http-api";
+import { categoryAPI, productAPI, userAPI } from "../services/http-api";
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import ProductReview from "./ProductReview";
+import ProductReview from "../components/ProductReview";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +19,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     axios
-      .get(`${prodcutAPI.url}/${id}`)
+      .get(`${productAPI.url}/${id}`)
       .then((res) => {
         const product = res.data.product;
         setProduct(product);
@@ -37,9 +37,7 @@ const ProductDetail = () => {
       .catch((err) => console.error("Failed to load product:", err));
   }, [id]);
 
-  useEffect(()=> {
-
-  })
+  useEffect(() => {});
 
   const handleGoBack = () => {
     navigate(-1);
@@ -87,7 +85,9 @@ const ProductDetail = () => {
             </Link>{" "}
             &gt;{" "}
             <Link
-              to={`/categories/${category?.name}`}
+              to={`/categories?name=${encodeURIComponent(
+                category?.name || ""
+              )}`}
               className="hover:opacity-50"
             >
               {category?.name}
@@ -115,7 +115,7 @@ const ProductDetail = () => {
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-light">
             Uploaded by{" "}
-            <Link to="/" className="hover:opacity-50">
+            <Link to={`/user/${user?.username}`} className="hover:opacity-50">
               {user?.username}
             </Link>
           </h1>

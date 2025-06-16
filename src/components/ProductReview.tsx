@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Pencil, Star } from "lucide-react";
 import type { Review } from "../types/review";
-import { prodcutAPI, userAPI } from "../services/http-api";
+import { productAPI, userAPI } from "../services/http-api";
 
 interface ReviewWithUser extends Review {
   reviewer_name: string;
@@ -25,7 +25,7 @@ const ProductReview = ({ productId }: Props) => {
 
   useEffect(() => {
     axios
-      .get(`${prodcutAPI.url}/${productId}/reviews`)
+      .get(`${productAPI.url}/${productId}/reviews`)
       .then(async (res) => {
         const rawReviews: Review[] = res.data.reviews;
 

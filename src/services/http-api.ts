@@ -10,7 +10,7 @@ export const authAPI = {
     url: "http://localhost:3000/api/v1/auth"
 }
 
-export const prodcutAPI = {
+export const productAPI = {
     url: "http://localhost:3000/api/v1/products"
 }
 

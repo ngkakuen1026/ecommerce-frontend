@@ -7,11 +7,12 @@ import FAQ from "./pages/FAQ";
 import { Contact } from "lucide-react";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import ProductDetail from "./components/ProductDetail";
+import ProductDetail from "./pages/ProductDetail";
 import Category from "./pages/Category";
 import Profile from "./pages/Profile";
 import { MessageCircle } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import UserPublicProfile from "./pages/UserPublicProfile";
 
 const FloatingChatButton = () => {
   const { isLoggedIn } = useAuth();
@@ -19,9 +20,7 @@ const FloatingChatButton = () => {
   if (!isLoggedIn) return null;
 
   return (
-    <button
-      className="fixed bottom-6 right-6 z-50 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition"
-    >
+    <button className="fixed bottom-6 right-6 z-50 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition">
       <MessageCircle className="w-8 h-8" />
     </button>
   );
@@ -44,7 +43,8 @@ const AppContent = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/categories" element={<Category />} />
-        <Route path="/user/profile" element={<Profile />} />
+        <Route path="/user/myprofile" element={<Profile />} />
+        <Route path="/user/:username" element={<UserPublicProfile />} />
       </Routes>
       {!shouldHideFooter && <Footer />}
       <FloatingChatButton />

@@ -9,6 +9,11 @@ export interface Product {
   image_url: string;
   images: ProductImage[];
   created_at: string;
+  user: {
+    username: string;
+    profile_image: string;
+    registration_date: string;
+  };
 }
 
 export interface ProductImage {

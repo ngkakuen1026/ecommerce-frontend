@@ -96,13 +96,26 @@ const Navbar = () => {
 
               {showMenu && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50 p-4 space-y-2">
-                  <p className="text-gray-500 mb-2">
+                  <div className="flex gap-4 mb-2">
+                    <img
+                      src={user?.profile_image ?? "/default-avatar.png"}
+                      alt="User Avatar"
+                      className="w-14 h-14 rounded-full border object-cover md:hover:opacity-50"
+                    />
+                    <div>
+                      <p className="text-gray-700 font-medium text-base">
+                        {user?.first_name}, {user?.last_name}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-sm">
                     Welcome back,{" "}
-                    <span className="font-medium text-gray-800">
-                      {user?.username}
+                    <span className="font-semibold text-gray-800 hover:opacity-50">
+                      <Link to={`/user/${user?.username}`}>
+                        {user?.username}
+                      </Link>
                     </span>
                   </p>
-
                   {/* Mobile-only nav links */}
                   <div className="flex flex-col lg:hidden border-t pt-2 space-y-1">
                     {[
@@ -133,14 +146,26 @@ const Navbar = () => {
                     </Link>
 
                     <Link
-                      to="/user/profile"
+                      to="/user/myprofile"
                       onClick={() => setShowMenu(false)}
                       className="flex items-center gap-2 px-2 py-2 text-gray-800 hover:bg-gray-100 rounded transition"
                     >
                       <UserPen className="w-4 h-4" />
                       <span>Edit Profile</span>
                     </Link>
+                    {user?.is_admin === true && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setShowMenu(false)}
+                        className="flex items-center gap-2 px-2 py-2 text-gray-800 hover:bg-gray-100 rounded transition"
+                      >
+                        <UserPen className="w-4 h-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
+                  </div>
 
+                  <div className="border-t pt-2 space-y-1">
                     <button
                       onClick={() => {
                         logout();
