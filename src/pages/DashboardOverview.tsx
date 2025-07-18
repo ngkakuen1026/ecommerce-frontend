@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import authAxios from "../services/authAxios";
 import { useAuth } from "../context/AuthContext";
 
-const Profile = () => {
+const DashboardOverview = () => {
   const { user } = useAuth();
 
   useEffect(() => {
@@ -20,10 +20,9 @@ const Profile = () => {
 
   return (
     <div>
-      <h1>{user?.username}</h1>
-      <h1>{user?.bio}</h1>
+      <h1>Welcome back, {user?.username}</h1>
     </div>
   );
 };
 
-export default Profile;
+export default DashboardOverview;

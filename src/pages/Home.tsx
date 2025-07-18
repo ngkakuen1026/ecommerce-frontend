@@ -1,7 +1,7 @@
-import HeroBanner from "../components/Herobanner";
-import SiteFeatures from "../components/SiteFeatures";
-import BrowseByCategories from "../components/BrowseByCategories";
-import BrowseByProducts from "../components/BrowseByProducts";
+import BrowseByCategories from "../components/Home/BrowseByCategories";
+import BrowseByProducts from "../components/Home/BrowseByProducts";
+import HeroBanner from "../components/Home/Herobanner";
+import SiteFeatures from "../components/Home/SiteFeatures";
 
 const Home = () => {
   return (

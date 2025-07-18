@@ -1,6 +1,5 @@
-import axios from "axios";
-import { categoryAPI } from "../services/http-api";
-import type { Categories } from "../types/category";
+import { categoryAPI } from "../../services/http-api";
+import type { Categories } from "../../types/category";
 import { useEffect, useState } from "react";
 import {
   ShoppingBag,
@@ -18,16 +17,22 @@ import {
   Gamepad2,
   CircleUser,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import authAxios from "../../services/authAxios";
 
 const BrowseByCategories = () => {
   const [categories, setCategories] = useState<Categories[]>([]);
 
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (categoryName: string) => {
+    navigate(`/categories?name=${encodeURIComponent(categoryName)}`);
+  };
+
   useEffect(() => {
-    axios
+    authAxios
       .get(`${categoryAPI.url}`)
       .then((res) => {
-        // console.log("API response for Categories:", res.data);
         const fetchedCategirues = res.data.categories;
         setCategories(fetchedCategirues.slice(0, 10));
       })
@@ -35,38 +40,38 @@ const BrowseByCategories = () => {
   }, []);
 
   return (
-    <div className="bg-gray-50 p-10">
-      <div className="flex items-center justify-between pb-5">
-        <h1 className="text-4xl font-bold">Explore the Categories</h1>
-        <Link
-          to="/categories"
-          className="text-lg text-gray-600 hover:opacity-50 whitespace-nowrap"
-        >
-          View all categories...
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="relative cursor-pointer h-64 rounded-xl overflow-hidden shadow hover:shadow-lg transition group bg-cover bg-center"
-            style={{ backgroundImage: `url(${category.image_url})` }}
+    <div className="bg-gray-50 px-6 py-10">
+      <div className="max-w-screen-2xl mx-auto">
+        <div className="flex items-center justify-between pb-5">
+          <h1 className="text-4xl font-bold">Explore the Categories</h1>
+          <Link
+            to="/categories"
+            className="text-lg text-gray-600 hover:opacity-50 whitespace-nowrap"
           >
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition duration-300" />
+            View all categories...
+          </Link>
+        </div>
 
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-2">
-              <div className="mb-2">
-                <IconForCategory name={category.name} className="w-8 h-8" />
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              onClick={() => handleCategoryClick(category.name)}
+              className="relative cursor-pointer h-64 rounded-xl overflow-hidden shadow hover:shadow-lg transition group bg-cover bg-center duration-300 ease-in-out transform hover:scale-105"
+              style={{ backgroundImage: `url(${category.image_url})` }}
+            >
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition duration-300" />
+              <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-2">
+                <div className="mb-2 transition-transform duration-300 group-hover:scale-110">
+                  <IconForCategory name={category.name} className="w-8 h-8" />
+                </div>
+                <p className="font-semibold text-base sm:text-lg">
+                  {category.name}
+                </p>
               </div>
-              <p className="font-semibold text-base sm:text-lg">
-                {category.name}
-              </p>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

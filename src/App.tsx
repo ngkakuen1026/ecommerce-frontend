@@ -13,6 +13,9 @@ import Profile from "./pages/Profile";
 import { MessageCircle } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import UserPublicProfile from "./pages/UserPublicProfile";
+import AddProduct from "./pages/AddProduct";
+import AddProductImages from "./components/AddProduct/AddProductImages";
+import DashboardRoutes from "./pages/Dashboard";
 
 const FloatingChatButton = () => {
   const { isLoggedIn } = useAuth();
@@ -28,8 +31,10 @@ const FloatingChatButton = () => {
 
 const AppContent = () => {
   const location = useLocation();
-  const hideFooterPaths = ["/login", "/register"];
-  const shouldHideFooter = hideFooterPaths.includes(location.pathname);
+  const hideFooterPaths = ["/login", "/register", "/dashboard/*"];
+  const shouldHideFooter =
+    hideFooterPaths.includes(location.pathname) ||
+    location.pathname.startsWith("/dashboard");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -45,6 +50,9 @@ const AppContent = () => {
         <Route path="/categories" element={<Category />} />
         <Route path="/user/myprofile" element={<Profile />} />
         <Route path="/user/:username" element={<UserPublicProfile />} />
+        <Route path="/add-product" element={<AddProduct />} />
+        <Route path="/add-images/:id" element={<AddProductImages />} />
+        <Route path="/dashboard/*" element={<DashboardRoutes />} />
       </Routes>
       {!shouldHideFooter && <Footer />}
       <FloatingChatButton />

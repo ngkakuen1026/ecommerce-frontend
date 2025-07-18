@@ -1,6 +1,17 @@
 import { Search } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const HeroBanner = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    navigate(`/categories?query=${encodeURIComponent(searchQuery.trim())}`);
+  };
+
   return (
     <section className="herobanner-bg bg-gradient-to-r from-cyan-200 to-cyan-400 py-20 px-8">
       <div className="x-auto flex flex-col-reverse md:flex-row items-center">
@@ -19,9 +30,14 @@ const HeroBanner = () => {
             <input
               type="text"
               placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 text-sm sm:text-base"
             />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 hover:text-blue-600 cursor-pointer" />
+            <Search
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 hover:text-blue-600 cursor-pointer"
+              onClick={handleSearch}
+            />
           </div>
         </div>
 
@@ -30,7 +46,6 @@ const HeroBanner = () => {
             src="../src/assets/herobanner.png"
             alt="Hero Banner"
             className="w-full mx-auto rounded-lg shadow-lg"
-            // className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto rounded-lg shadow-lg"
           />
         </div>
       </div>

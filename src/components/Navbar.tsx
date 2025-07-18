@@ -7,6 +7,7 @@ import {
   LogOut,
   UserPen,
   ChartBarIncreasing,
+  CirclePlus,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -33,7 +34,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-gray-50 shadow-md px-6 py-4">
-      <div className="mx-auto flex items-center justify-between gap-10">
+      <div className="max-w-screen-2xl mx-auto flex items-center justify-between gap-10">
         {/* Logo */}
         <div className="flex-none">
           <Link to="/" className="text-3xl font-bold text-blue-500">
@@ -88,7 +89,11 @@ const Navbar = () => {
                 className="flex items-center justify-center focus:outline-none"
               >
                 <img
-                  src={user?.profile_image}
+                  src={
+                    user?.profile_image
+                      ? user.profile_image
+                      : "https://i.pinimg.com/236x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
+                  }
                   alt="User Avatar"
                   className="w-10 h-10 rounded-full border object-cover md:hover:opacity-50"
                 />
@@ -97,11 +102,18 @@ const Navbar = () => {
               {showMenu && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50 p-4 space-y-2">
                   <div className="flex gap-4 mb-2">
-                    <img
-                      src={user?.profile_image ?? "/default-avatar.png"}
-                      alt="User Avatar"
-                      className="w-14 h-14 rounded-full border object-cover md:hover:opacity-50"
-                    />
+                    {user?.profile_image ? (
+                      <img
+                        src={user?.profile_image ?? "/default-avatar.png"}
+                        alt="User Avatar"
+                        className="w-14 h-14 rounded-full border object-cover md:hover:opacity-50"
+                      />
+                    ) : (
+                      <img
+                        src="https://i.pinimg.com/236x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    )}
                     <div>
                       <p className="text-gray-700 font-medium text-base">
                         {user?.first_name}, {user?.last_name}
@@ -137,14 +149,21 @@ const Navbar = () => {
 
                   <div className="border-t pt-2 space-y-1">
                     <Link
-                      to="/dashboard"
+                      to="/dashboard/overview"
                       onClick={() => setShowMenu(false)}
                       className="flex items-center gap-2 px-2 py-2 text-gray-800 hover:bg-gray-100 rounded transition"
                     >
                       <ChartBarIncreasing className="w-4 h-4" />
                       <span>Dashboard</span>
                     </Link>
-
+                    <Link
+                      to="/add-product"
+                      onClick={() => setShowMenu(false)}
+                      className="flex items-center gap-2 px-2 py-2 text-gray-800 hover:bg-gray-100 rounded transition"
+                    >
+                      <CirclePlus className="w-4 h-4" />
+                      <span>Add Product</span>
+                    </Link>
                     <Link
                       to="/user/myprofile"
                       onClick={() => setShowMenu(false)}

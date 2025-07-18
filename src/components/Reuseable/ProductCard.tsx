@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import type { Product } from "../types/product";
-import { Heart, User } from "lucide-react";
+import type { Product } from "../../types/product";
+import { Heart, ShoppingBasket, User } from "lucide-react";
 
 interface Props {
   product: Product;
@@ -19,8 +19,8 @@ const ProductCard: React.FC<Props> = ({ product }) => {
   const shouldHideElement = location.pathname.startsWith("/user/");
 
   return (
-    <div className="border rounded-lg p-4 shadow hover:shadow-md ease-in-out transition delay-75 hover:scale-[1.05]">
-      {/* 👤 Uploader Info */}
+    <div className="border rounded-lg p-4 shadow hover:shadow-md transition ease-in-out delay-50 hover:scale-[1.01]">
+      {/* Uploader Info */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -50,7 +50,7 @@ const ProductCard: React.FC<Props> = ({ product }) => {
         </div>
 
         {!shouldHideElement && (
-          <Heart className="text-gray-500 hover:text-red-500 transition" />
+          <Heart className="text-gray-500 hover:text-red-500 transition cursor-pointer" />
         )}
       </div>
 
@@ -68,15 +68,19 @@ const ProductCard: React.FC<Props> = ({ product }) => {
         </div>
       </Link>
 
-      {/* 📦 Product Info */}
+      {/* Product Info */}
       <Link to={`/product/${product.id}`}>
-        <h2 className="mt-2 text-lg font-semibold">{product.title}</h2>
+        <h2 className="mt-2 text-lg font-semibold hover:underline">
+          {product.title}
+        </h2>
       </Link>
       <p className="text-gray-600">${product.price}</p>
-
-      <button className="mt-2 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
-        Add to Cart
-      </button>
+      {!shouldHideElement && (
+        <button className="flex items-center gap-2 mt-2 bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">
+          Add to Cart
+          <ShoppingBasket size={16} />
+        </button>
+      )}
     </div>
   );
 };

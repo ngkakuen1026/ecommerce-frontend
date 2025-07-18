@@ -1,4 +1,4 @@
-export interface Review {
+export interface ProductReviewType {
   id: number;
   product_id: number;
   reviewer_id: number;
