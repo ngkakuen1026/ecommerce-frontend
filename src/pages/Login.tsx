@@ -4,6 +4,7 @@ import axios from "axios";
 import { authAPI } from "../services/http-api";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [input, setInput] = useState({ email: "", password: "" });
@@ -19,30 +20,30 @@ const Login = () => {
     setInput((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setError("");
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
 
-  try {
-    const response = await axios.post(`${authAPI.url}/login`, input, {
-      withCredentials: true,
-    });
+    try {
+      const response = await axios.post(`${authAPI.url}/login`, input, {
+        withCredentials: true,
+      });
 
-    const token = response.data.accessToken;
-    if (!token) throw new Error("Token not found in response");
+      const token = response.data.accessToken;
+      if (!token) throw new Error("Token not found in response");
 
-    // Update global auth state
-    await checkAuth();
+      // Update global auth state
+      await checkAuth();
 
-    navigate("/");
-  } catch (error) {
-    let errorMessage = "An unknown error occurred";
-    if (error && typeof error === "object" && "message" in error) {
-      errorMessage = (error as { message: string }).message;
+      navigate("/");
+    } catch (error) {
+      let errorMessage = "An unknown error occurred";
+      if (error && typeof error === "object" && "message" in error) {
+        errorMessage = (error as { message: string }).message;
+      }
+      setError(errorMessage);
     }
-    setError(errorMessage);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-20">
@@ -128,9 +129,9 @@ const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
                 />
                 <span className="text-gray-700">Remember Me</span>
               </label>
-              <a href="#" className="text-blue-500 hover:underline">
+              <Link to="/" className="text-blue-500 hover:underline">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
             {/* Buttons */}

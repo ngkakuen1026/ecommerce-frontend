@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Trash } from "lucide-react";
+import { Trash, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { Product } from "../../../types/product";
@@ -38,9 +38,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 }`}
               >
                 {productIdSort === "asc" ? (
-                  <ArrowUp size={16} />
+                  <ArrowUpNarrowWide size={16} />
                 ) : (
-                  <ArrowDown size={16} />
+                  <ArrowDownWideNarrow size={16} />
                 )}
               </button>
             </div>
@@ -64,15 +64,19 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 to={`/dashboard/products/product-edit/image/${product.id}`}
                 className="hover:opacity-15"
               >
-                <img
-                  src={
-                    product.image_url
-                      ? product.image_url
-                      : "https://static.audison.com/media/2022/10/no-product-image.png"
-                  }
-                  alt={product.title}
-                  className="w-48 h-48 object-cover rounded"
-                />
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.title}
+                    className="w-48 h-48 object-cover mr-4 border border-gray-300 rounded-lg p-1"
+                  />
+                ) : (
+                  <img
+                    src="https://static.audison.com/media/2022/10/no-product-image.png"
+                    alt={product.title}
+                    className="w-48 h-48 object-cover mr-4 border border-gray-300 rounded-lg p-1"
+                  />
+                )}
               </Link>
             </td>
             <td className="py-2 px-4">

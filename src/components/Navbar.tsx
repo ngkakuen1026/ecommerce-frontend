@@ -8,9 +8,15 @@ import {
   UserPen,
   ChartBarIncreasing,
   CirclePlus,
+  MoveUpRight,
+  X,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import type { WishlistItem } from "../types/wishlist";
+import authAxios from "../services/authAxios";
+import { wishlistAPI } from "../services/http-api";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const { isLoggedIn, logout, user } = useAuth();
@@ -19,18 +25,73 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleClickOutside = (e: MouseEvent) => {
-    if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-      setShowMenu(false);
-    }
-  };
+  const [showWishlist, setShowWishlist] = useState(false);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const wishlistRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const fetchWishlist = () => {
+      if (isLoggedIn) {
+        authAxios
+          .get(`${wishlistAPI.url}/me`)
+          .then((res) => {
+            if (res.data.wishlist) {
+              setWishlist(res.data.wishlist);
+            } else {
+              setWishlist([]);
+            }
+          })
+          .catch(() => setWishlist([]));
+      } else {
+        setWishlist([]);
+      }
+    };
+
+    fetchWishlist();
+
+    const handleWishlistUpdate = () => {
+      fetchWishlist();
+    };
+
+    window.addEventListener("wishlist-updated", handleWishlistUpdate);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+    };
+  }, [isLoggedIn]);
+
+  // Hide dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        wishlistRef.current &&
+        !wishlistRef.current.contains(e.target as Node)
+      ) {
+        setShowMenu(false);
+        setShowWishlist(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const removeFromWishlist = async (productId: number) => {
+    try {
+      await authAxios.delete(`${wishlistAPI.url}/delete/${productId}`);
+      setWishlist((prev) =>
+        prev.filter((item) => item.product_id !== productId)
+      );
+      toast.success("Item removed from wishlist!");
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (err) {
+      console.error("Error removing item from wishlist:", err);
+      toast.error("Error removing item from wishlist.");
+    }
+  };
 
   return (
     <nav className="bg-gray-50 shadow-md px-6 py-4">
@@ -68,12 +129,100 @@ const Navbar = () => {
           >
             <Bell className="w-8 h-8" />
           </Link>
-          <Link
-            to="/wishlist"
-            className="flex items-center justify-center text-gray-700 hover:text-blue-600"
-          >
-            <Heart className="w-8 h-8" />
-          </Link>
+          <div className="relative" ref={wishlistRef}>
+            <button
+              onClick={() => {
+                setShowWishlist((prev) => !prev);
+                setShowMenu(false);
+              }}
+              className="flex items-center justify-center text-gray-700 hover:text-blue-600 focus:outline-none relative"
+            >
+              <Heart className="w-8 h-8" />
+              {isLoggedIn && wishlist.length > 0 && (
+                <span
+                  className="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5"
+                  style={{ minWidth: "1.5rem", textAlign: "center" }}
+                >
+                  {wishlist.length}
+                </span>
+              )}
+            </button>
+            {showWishlist && isLoggedIn && (
+              <div className="absolute right-0 top-full mt-2 w-full md:w-96 bg-white border border-gray-200 rounded-md shadow-lg z-50 m-4">
+                <div className="bg-gray-100 p-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-gray-700">
+                      Your Wishlist
+                    </h2>
+                    <h3 className="text-gray-500">({wishlist.length}) items</h3>
+                  </div>
+
+                  <h3
+                    className="py-2 rounded transition flex items-center gap-2 cursor-pointer hover:opacity-50"
+                    onClick={() => {
+                      setShowWishlist(false);
+                      navigate("/wishlist");
+                    }}
+                  >
+                    View More
+                    <MoveUpRight size={16} />
+                  </h3>
+                </div>
+                <div className="p-4">
+                  {wishlist.length === 0 ? (
+                    <p className="text-gray-500 text-sm">
+                      Your wishlist is empty.
+                    </p>
+                  ) : (
+                    <ul className="divide-y divide-gray-100">
+                      {wishlist.slice(0, 5).map((item) => (
+                        <li
+                          key={item.id}
+                          className="flex items-start gap-3 py-2 hover:bg-gray-50 transition cursor-pointer"
+                        >
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt={item.title}
+                              className="w-24 h-24 md:w-36 md:h-36 object-cover rounded border"
+                            />
+                          ) : (
+                            <img
+                              src="https://commercial.bunn.com/img/image-not-available.png"
+                              alt={item.title}
+                              className="w-24 h-24 md:w-36 md:h-36 object-cover rounded border"
+                            />
+                          )}
+                          <div className="flex-1 flex flex-col justify-between">
+                            <Link
+                              to={`/product/${item.product_id}`}
+                              className="text-gray-800 font-medium hover:underline"
+                              onClick={() => setShowWishlist(false)}
+                            >
+                              {item.title}
+                            </Link>
+                            <h2 className="text-sm text-gray-500">
+                              ${item.price}
+                            </h2>
+
+                            <button className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition w-full">
+                              Add to Cart
+                            </button>
+                          </div>
+
+                          <X
+                            size={16}
+                            className="hover:opacity-50 cursor-pointer"
+                            onClick={() => removeFromWishlist(item.product_id)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           <Link
             to="/cart"
             className="flex items-center justify-center text-gray-700 hover:text-blue-600"
@@ -85,7 +234,10 @@ const Navbar = () => {
           {isLoggedIn ? (
             <div className="relative flex items-center" ref={menuRef}>
               <button
-                onClick={() => setShowMenu((prev) => !prev)}
+                onClick={() => {
+                  setShowMenu((prev) => !prev);
+                  setShowWishlist(false);
+                }}
                 className="flex items-center justify-center focus:outline-none"
               >
                 <img

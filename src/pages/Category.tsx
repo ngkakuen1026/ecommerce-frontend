@@ -4,12 +4,13 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import type { Categories } from "../types/category";
 import type { Product } from "../types/product";
-import { categoryAPI, productAPI } from "../services/http-api";
+import { categoryAPI, productAPI, wishlistAPI } from "../services/http-api";
 
 import RandomCategoryCards from "../components/Category/RandomCategoryCards";
 import CategorySidebar from "../components/Category/CategorySidebar";
 import ProductGrid from "../components/Category/ProductGrid";
 import authAxios from "../services/authAxios";
+import type { WishlistItem } from "../types/wishlist";
 
 const Category = () => {
   const [randomCategories, setRandomCategories] = useState<Categories[]>([]);
@@ -20,13 +21,14 @@ const Category = () => {
   const [selectedCategory, setSelectedCategory] = useState<Categories | null>(
     null
   );
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
 
   // Price Filter
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
   const [tempMinPrice, setTempMinPrice] = useState<number>(0);
-  const [tempMaxPrice, setTempMaxPrice] = useState<number>(1000);
+  const [tempMaxPrice, setTempMaxPrice] = useState<number>(100000);
 
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +64,7 @@ const Category = () => {
       .get(`${categoryAPI.url}`)
       .then((res) => {
         const all = res.data.categories;
+        console.log("Fetched Categories:", all); // Log fetched categories
         const random = all.sort(() => 0.5 - Math.random()).slice(0, 4);
         setRandomCategories(random);
         setCategories(all);
@@ -77,6 +80,27 @@ const Category = () => {
       .catch((err) => console.error("Failed to fetch products:", err));
   }, []);
 
+  // Fetch wishlist
+  useEffect(() => {
+    const fetchWishlist = () => {
+      authAxios
+        .get(`${wishlistAPI.url}/me`)
+        .then((res) => setWishlist(res.data.wishlist))
+        .catch(() => setWishlist([]));
+    };
+
+    fetchWishlist();
+
+    const handleWishlistUpdate = () => {
+      fetchWishlist();
+    };
+
+    window.addEventListener("wishlist-updated", handleWishlistUpdate);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+    };
+  }, []);
   // Handle sorting
   useEffect(() => {
     if (!sortOption || products.length === 0) return;
@@ -245,9 +269,7 @@ const Category = () => {
 
                     <button
                       onClick={() =>
-                        setCurrentPage((prev) =>
-                          Math.min(prev + 1, totalPages)
-                        )
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }
                       disabled={currentPage === totalPages}
                       className="px-4 py-2 rounded border text-sm disabled:opacity-50"
@@ -260,7 +282,12 @@ const Category = () => {
             </div>
 
             {/* Product List */}
-            <ProductGrid products={currentProducts} loading={loading} />
+            <ProductGrid
+              products={currentProducts}
+              loading={loading}
+              wishlist={wishlist}
+              categories={categories}
+            />
           </div>
         </div>
       </div>

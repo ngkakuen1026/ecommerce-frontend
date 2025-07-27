@@ -24,8 +24,8 @@ const PriceRangeFilter: React.FC<Props> = ({
         <input
           type="range"
           min={0}
-          max={1000}
-          step={10}
+          max={100000}
+          step={100}
           value={tempMin}
           onChange={(e) => {
             const val = parseInt(e.target.value);
@@ -35,8 +35,8 @@ const PriceRangeFilter: React.FC<Props> = ({
         <input
           type="range"
           min={0}
-          max={1000}
-          step={10}
+          max={100000}
+          step={100}
           value={tempMax}
           onChange={(e) => {
             const val = parseInt(e.target.value);

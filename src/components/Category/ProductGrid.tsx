@@ -2,13 +2,17 @@ import React from "react";
 import type { Product } from "../../types/product";
 import ProductCard from "../Reuseable/ProductCard";
 import { X } from "lucide-react";
+import type { WishlistItem } from "../../types/wishlist";
+import type { Categories } from "../../types/category";
 
 interface Props {
   products: Product[];
   loading: boolean;
+  wishlist: WishlistItem[];
+    categories: Categories[]; 
 }
 
-const ProductGrid: React.FC<Props> = ({ products, loading }) => {
+const ProductGrid: React.FC<Props> = ({ products, loading, wishlist, categories }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -32,7 +36,7 @@ const ProductGrid: React.FC<Props> = ({ products, loading }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6 drop-shadow-lg">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} wishlist={wishlist} categories={categories}/>
       ))}
     </div>
   );

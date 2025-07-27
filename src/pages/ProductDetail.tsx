@@ -5,13 +5,19 @@ import type { Product } from "../types/product";
 import type { Categories } from "../types/category";
 import type { UserType } from "../types/user";
 import type { ProductReviewType } from "../types/productReview";
-import { categoryAPI, productAPI, userAPI } from "../services/http-api";
+import {
+  categoryAPI,
+  productAPI,
+  userAPI,
+  wishlistAPI,
+} from "../services/http-api";
 import ProductImages from "../components/ProductDetail/ProductImages";
 import ProductBreadcrumb from "../components/ProductDetail/ProductBreadcrumb";
 import ProductMeta from "../components/ProductDetail/ProductMeta";
 import ProductActions from "../components/ProductDetail/ProductAction";
 import ProductReview from "../components/ProductDetail/ProductReview";
 import authAxios from "../services/authAxios";
+import type { WishlistItem } from "../types/wishlist";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +26,7 @@ const ProductDetail = () => {
   const [user, setUser] = useState<UserType | null>(null);
   const [averageRating, setAverageRating] = useState<number>(0);
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,23 +39,43 @@ const ProductDetail = () => {
         return Promise.all([
           axios.get(`${categoryAPI.url}/${product.category_id}`),
           axios.get(`${userAPI.url}/${product.user_id}`),
-          axios.get(`${productAPI.url}/${product.id}/reviews`), // Fetch reviews
+          axios.get(`${productAPI.url}/${product.id}/reviews`),
         ]);
       })
       .then(([categoryRes, userRes, reviewsRes]) => {
         setCategory(categoryRes.data.category);
         setUser(userRes.data.users?.[0]);
 
-        const enrichedReviews: ProductReviewType[] = reviewsRes.data.reviews; // Use the defined type
+        const enrichedReviews: ProductReviewType[] = reviewsRes.data.reviews;
         if (enrichedReviews.length > 0) {
           const totalRating = enrichedReviews.reduce(
-            (sum: number, r: ProductReviewType) => sum + r.rating,
+            (sum: number, review: ProductReviewType) => sum + review.rating,
             0
           );
           setAverageRating(totalRating / enrichedReviews.length);
         }
       })
       .catch((err) => console.error("Failed to load product:", err));
+
+    // Fetch wishlist
+    const fetchWishlist = () => {
+      authAxios
+        .get(`${wishlistAPI.url}/me`)
+        .then((res) => setWishlist(res.data.wishlist))
+        .catch(() => setWishlist([]));
+    };
+
+    fetchWishlist();
+
+    const handleWishlistUpdate = () => {
+      fetchWishlist();
+    };
+
+    window.addEventListener("wishlist-updated", handleWishlistUpdate);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+    };
   }, [id]);
 
   if (!product) return <div className="p-10">Loading...</div>;
@@ -71,9 +98,8 @@ const ProductDetail = () => {
             product={product}
             user={user}
             averageRating={averageRating}
-          />{" "}
-          {/* Pass average rating */}
-          <ProductActions />
+          />
+          <ProductActions product={product} wishlist={wishlist} />
         </div>
         <div className="lg:col-span-2 space-y-10">
           <ProductReview productId={product.id.toString()} />

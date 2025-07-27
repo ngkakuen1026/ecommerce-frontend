@@ -5,9 +5,15 @@ interface UserHeaderProps {
   username: string;
   profileImage?: string;
   registrationDate?: string;
+  bio?: string;
 }
 
-const UserHeader: React.FC<UserHeaderProps> = ({ username, profileImage, registrationDate }) => {
+const UserHeader: React.FC<UserHeaderProps> = ({
+  username,
+  profileImage,
+  registrationDate,
+  bio,
+}) => {
   return (
     <div className="bg-cyan-500 rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
       {profileImage ? (
@@ -22,8 +28,12 @@ const UserHeader: React.FC<UserHeaderProps> = ({ username, profileImage, registr
       <div className="text-center sm:text-left">
         <h1 className="text-2xl font-bold">{username}</h1>
         <p className="text-sm text-white mt-1">
-          Joined {registrationDate ? new Date(registrationDate).toLocaleDateString() : "Unknown"}
+          Joined{" "}
+          {registrationDate
+            ? new Date(registrationDate).toLocaleDateString()
+            : "Unknown"}
         </p>
+        <p className="text-lg text-gray-100 mt-1">{bio}</p>
       </div>
     </div>
   );

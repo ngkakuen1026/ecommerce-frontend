@@ -1,27 +1,58 @@
 import { useEffect, useState } from "react";
-import { productAPI } from "../../services/http-api";
+import { categoryAPI, productAPI, wishlistAPI } from "../../services/http-api";
 import type { Product } from "../../types/product";
 import { Link } from "react-router-dom";
 import { RefreshCcw } from "lucide-react";
 import ProductCard from "../Reuseable/ProductCard";
 import authAxios from "../../services/authAxios";
+import type { WishlistItem } from "../../types/wishlist";
+import type { Categories } from "../../types/category";
 
 const BrowseByProducts = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [categories, setCategories] = useState<Categories[]>([]);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await authAxios.get(`${categoryAPI.url}`);
+        setCategories(response.data.categories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    const fetchWishlist = () => {
+      authAxios
+        .get(`${wishlistAPI.url}/me`)
+        .then((res) => setWishlist(res.data.wishlist))
+        .catch(() => setWishlist([]));
+    };
+
     authAxios
       .get(`${productAPI.url}`)
       .then((res) => {
         const fetchedProducts = res.data.products;
-
         const shuffled = [...fetchedProducts].sort(() => 0.5 - Math.random());
-
         setAllProducts(shuffled);
         setVisibleProducts(shuffled.slice(0, 12));
       })
       .catch((error) => console.error("Failed to fetch products:", error));
+
+    fetchCategories();
+    fetchWishlist();
+
+    const handleWishlistUpdate = () => {
+      fetchWishlist();
+    };
+
+    window.addEventListener("wishlist-updated", handleWishlistUpdate);
+
+    return () => {
+      window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+    };
   }, []);
 
   const shuffleProducts = () => {
@@ -54,7 +85,12 @@ const BrowseByProducts = () => {
 
         <div className="grid max-w-full grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 drop-shadow-lg">
           {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              wishlist={wishlist}
+              categories={categories}
+            />
           ))}
         </div>
       </div>

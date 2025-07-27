@@ -9,6 +9,7 @@ type AuthContextType = {
   user: UserType | null;
   checkAuth: () => Promise<void>;
   logout: () => void;
+  setUser: (user: UserType | null) => void; 
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   checkAuth: async () => {},
   logout: () => {},
+  setUser: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -54,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, checkAuth, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, checkAuth, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

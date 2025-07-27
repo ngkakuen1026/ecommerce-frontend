@@ -17,3 +17,7 @@ export const productAPI = {
 export const categoryAPI = {
     url: "http://localhost:3000/api/v1/categories"
 }
+
+export const wishlistAPI = {
+    url: "http://localhost:3000/api/v1/wishlist"
+}

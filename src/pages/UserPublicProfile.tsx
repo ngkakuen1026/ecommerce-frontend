@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { productAPI } from "../services/http-api";
 import type { Product } from "../types/product";
 import UserProductGrid from "../components/UserPublicProfile/UserProduct/UserProductGrid";
 import UserComments from "../components/UserPublicProfile/UserComment/UserComments";
 import UserHeader from "../components/UserPublicProfile/UserHeader";
 import UserTabs from "../components/UserPublicProfile/UserTabs";
+import authAxios from "../services/authAxios";
 
 const UserPublicProfile = () => {
   const { username } = useParams();
@@ -16,6 +16,7 @@ const UserPublicProfile = () => {
     username: string;
     profile_image?: string;
     registration_date?: string;
+    bio?: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"products" | "comments">(
@@ -29,7 +30,7 @@ const UserPublicProfile = () => {
   useEffect(() => {
     if (!username) return;
 
-    axios
+    authAxios
       .get(`${productAPI.url}/${username}/products`)
       .then((res) => {
         setProducts(res.data.products);
@@ -40,6 +41,8 @@ const UserPublicProfile = () => {
         console.error("Error fetching user products:", err);
         setLoading(false);
       });
+
+      
   }, [username]);
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
@@ -55,6 +58,7 @@ const UserPublicProfile = () => {
             : "https://i.pinimg.com/236x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
         }
         registrationDate={user.registration_date}
+        bio={user.bio}
       />
 
       <UserTabs activeTab={activeTab} onChangeTab={setActiveTab} />

@@ -1,27 +1,342 @@
-import { useEffect } from "react";
-import authAxios from "../services/authAxios";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import authAxios from "../services/authAxios";
+import { userAPI } from "../services/http-api";
+import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await authAxios.get("/dashboard/overview");
-        console.log("Overview data:", response.data);
-      } catch (error) {
-        console.error("Error fetching overview data:", error);
+  const [userInput, setUserInput] = useState({
+    first_name: user?.first_name || "",
+    last_name: user?.last_name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    gender: user?.gender || "",
+    bio: user?.bio || "",
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setUserInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle image file selection and preview
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      console.log("Selected file:", file);
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      console.log("No file selected.");
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    // Validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phonePattern = /^[2-9][0-9]{7}$/;
+
+    if (!userInput.first_name || !/^[A-Za-z\s]+$/.test(userInput.first_name)) {
+      toast.error("Please enter a valid first name.");
+      return;
+    }
+
+    if (!userInput.last_name || !/^[A-Za-z\s]+$/.test(userInput.last_name)) {
+      toast.error("Please enter a valid last name.");
+      return;
+    }
+
+    if (!userInput.email || !emailPattern.test(userInput.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (!phonePattern.test(userInput.phone)) {
+      toast.error("Please enter a valid HK phone number.");
+      return;
+    }
+
+    if (userInput.bio.length > 300) {
+      toast.error("Bio must be less than 300 characters.");
+      return;
+    }
+
+    const validGenders = ["Male", "Female", "Other"];
+    if (!validGenders.includes(userInput.gender)) {
+      toast.error("Please select a valid gender.");
+      return;
+    }
+
+    try {
+      const response = await authAxios.patch(
+        `${userAPI.url}/me/update`,
+        userInput
+      );
+
+      console.log("User data updated:", response.data.user);
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("profile_image", imageFile);
+
+        console.log("Uploading image:", imageFile);
+
+        const imageResponse = await authAxios.post(
+          `${userAPI.url}/me/profile-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        console.log("Image upload response:", imageResponse.data);
+
+        response.data.user.profile_image =
+          imageResponse.data.user.profile_image;
       }
-    };
 
-    fetchData();
-  }, []);
+      setUser(response.data.user);
+      toast.success("User Profile Updated Successfully.");
+      console.log("Profile updated:", response.data.user);
+      setIsEditing(false);
+      setImageFile(null);
+      setImagePreview(null);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      toast.error("Failed to update profile. Please try again.");
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setUserInput({
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      gender: user?.gender || "",
+      bio: user?.bio || "",
+    });
+    setImageFile(null);
+    setImagePreview(null);
+  };
 
   return (
-    <div>
-      <h1>{user?.username}</h1>
-      <h1>{user?.bio}</h1>
+    <div className="w-full max-w-screen-xl mx-auto p-6 sm:px-6">
+      <div className="flex flex-row gap-24">
+        <div className="flex flex-col items-center w-1/3">
+          <div className="relative group">
+            <img
+              src={imagePreview || user?.profile_image}
+              alt={`image of user ${user?.username}`}
+              className="w-64 h-64 rounded-full object-cover"
+            />
+
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
+              <label
+                htmlFor="profile_image"
+                className={`text-white text-lg font-semibold text-center ${
+                  isEditing ? "cursor-pointer" : ""
+                }`}
+              >
+                {isEditing
+                  ? "Edit Profile Image"
+                  : "Click Edit Profile to Change Profile Image"}
+              </label>
+              <input
+                type="file"
+                id="profile_image"
+                name="profile_image"
+                accept="image/*"
+                className="hidden"
+                disabled={!isEditing}
+                onChange={handleFileChange}
+              />
+            </div>
+          </div>
+          <Link
+            to={`/user/${user?.username}`}
+            className="hover:opacity-50"
+            target="_blank"
+          >
+            <h1
+              className={
+                user?.gender === "Male"
+                  ? "text-2xl font-bold mt-4 text-blue-500"
+                  : user?.gender === "Female"
+                  ? "text-2xl font-bold mt-4 text-red-500"
+                  : "text-2xl font-bold mt-4 text-black"
+              }
+            >
+              {user?.username}
+            </h1>
+          </Link>
+          <p
+            className={
+              user?.is_admin
+                ? "text-lg bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 bg-clip-text text-transparent"
+                : "text-lg text-black"
+            }
+          >
+            You're {user?.is_admin ? "Admin" : "Normal User"}
+          </p>
+          <p className="text-gray-600">
+            Registered at{" "}
+            {user?.registration_date
+              ? new Date(user?.registration_date).toLocaleString("en")
+              : "Unknown"}
+          </p>
+          <p className="text-gray-600 text-xl font-semibold mt-4">
+            {user?.first_name} {user?.last_name}
+          </p>
+          <p className="text-gray-600">{user?.email}</p>
+          <p className="text-gray-600 ">{user?.bio}</p>
+        </div>
+
+        <form className="flex-1 space-y-4">
+          <h1 className="text-4xl font-semibold">
+            {isEditing ? "Edit Your Information" : "Account Information"}
+          </h1>
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <label className="block font-semibold">First Name</label>
+              <input
+                className="w-full border rounded px-3 py-2 mt-1 focus:outline-none focus:ring-1"
+                placeholder="User first name"
+                type="text"
+                name="first_name"
+                disabled={!isEditing}
+                value={userInput.first_name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block font-semibold">Last Name</label>
+              <input
+                className="w-full border rounded px-3 py-2 mt-1 focus:outline-none focus:ring-1"
+                placeholder="User last name"
+                type="text"
+                name="last_name"
+                disabled={!isEditing}
+                value={userInput.last_name}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block font-semibold">Email</label>
+            <input
+              className="w-full border rounded px-3 py-2 mt-1 focus:outline-none focus:ring-1"
+              placeholder="User email"
+              type="email"
+              name="email"
+              disabled={!isEditing}
+              value={userInput.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold">Bio</label>
+            <textarea
+              className="w-full border rounded px-3 py-2 h-48 mt-1 focus:outline-none focus:ring-1"
+              placeholder="User bio"
+              name="bio"
+              disabled={!isEditing}
+              value={userInput.bio}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <label className="block font-semibold">Phone number</label>
+              <input
+                className="w-full border rounded px-3 py-2 mt-1 focus:outline-none focus:ring-1"
+                placeholder="User phone number"
+                type="tel"
+                name="phone"
+                pattern="^[2-9][0-9]{7}$"
+                disabled={!isEditing}
+                value={userInput.phone}
+                onChange={handleChange}
+                maxLength={8}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold">Gender</label>
+              <select
+                name="gender"
+                id="gender"
+                disabled={!isEditing}
+                value={userInput.gender}
+                onChange={handleChange}
+                className="w-full px-3 py-2 mt-1 border border-gray-400 rounded focus:outline-none focus:ring-1"
+              >
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex space-x-4 mt-6">
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleEdit}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Edit Profile
+                </button>
+                <Link
+                  to="/user/myprofile/change-pw"
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                >
+                  Change Password
+                </Link>
+              </>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

@@ -1,13 +1,20 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { Product } from "../../types/product";
+import type { WishlistItem } from "../../types/wishlist";
 import { Heart, ShoppingBasket, User } from "lucide-react";
+import { wishlistAPI } from "../../services/http-api";
+import authAxios from "../../services/authAxios";
+import { toast } from "react-toastify";
+import type { Categories } from "../../types/category";
 
 interface Props {
   product: Product;
+  wishlist: WishlistItem[];
+  categories: Categories[];
 }
 
-const ProductCard: React.FC<Props> = ({ product }) => {
+const ProductCard: React.FC<Props> = ({ product, wishlist, categories }) => {
   const hasImage = product.image_url && product.image_url.trim() !== "";
   const product_createdTime = new Date(product.created_at);
   const now = new Date();
@@ -17,6 +24,35 @@ const ProductCard: React.FC<Props> = ({ product }) => {
 
   const location = useLocation();
   const shouldHideElement = location.pathname.startsWith("/user/");
+  const isWishlisted = wishlist?.some((item) => item.product_id === product.id);
+
+  const addToWishlist = async (productId: number) => {
+    try {
+      await authAxios.post(`${wishlistAPI.url}/create`, { productId });
+      toast.success("Item added to wishlist!");
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (err) {
+      console.error("Failed to add to wishlist:", err);
+      toast.error(`Failed to add item to wishlist:" ${err}`);
+    }
+  };
+
+  const removeFromWishlist = async (productId: number) => {
+    try {
+      await authAxios.delete(`${wishlistAPI.url}/delete/${productId}`);
+      toast.success("Item removed from wishlist!");
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (err) {
+      console.error("Failed to remove from wishlist:", err);
+      toast.error("Failed to remove item from wishlist.");
+    }
+  };
+
+  const categoryName =
+    categories && categories.length > 0
+      ? categories.find((cat) => cat.id === product.category_id)?.name ||
+        "Unknown Category"
+      : "Loading...";
 
   return (
     <div className="border rounded-lg p-4 shadow hover:shadow-md transition ease-in-out delay-50 hover:scale-[1.01]">
@@ -50,7 +86,17 @@ const ProductCard: React.FC<Props> = ({ product }) => {
         </div>
 
         {!shouldHideElement && (
-          <Heart className="text-gray-500 hover:text-red-500 transition cursor-pointer" />
+          <Heart
+            onClick={() =>
+              isWishlisted
+                ? removeFromWishlist(product.id)
+                : addToWishlist(product.id)
+            }
+            className={`transition cursor-pointer ${
+              isWishlisted ? "text-red-500" : "text-gray-500"
+            }`}
+            fill={isWishlisted ? "red" : "none"}
+          />
         )}
       </div>
 
@@ -69,8 +115,11 @@ const ProductCard: React.FC<Props> = ({ product }) => {
       </Link>
 
       {/* Product Info */}
+      <h2 className="mt-2 text-md text-gray-600">
+        {categoryName}
+      </h2>
       <Link to={`/product/${product.id}`}>
-        <h2 className="mt-2 text-lg font-semibold hover:underline">
+        <h2 className="text-lg font-semibold hover:underline">
           {product.title}
         </h2>
       </Link>

@@ -16,6 +16,10 @@ import UserPublicProfile from "./pages/UserPublicProfile";
 import AddProduct from "./pages/AddProduct";
 import AddProductImages from "./components/AddProduct/AddProductImages";
 import DashboardRoutes from "./pages/Dashboard";
+import Wishlist from "./pages/Wishlist";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import EditPassword from "./pages/EditPassword";
 
 const FloatingChatButton = () => {
   const { isLoggedIn } = useAuth();
@@ -38,6 +42,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ToastContainer position="top-left" />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -49,10 +54,12 @@ const AppContent = () => {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/categories" element={<Category />} />
         <Route path="/user/myprofile" element={<Profile />} />
+        <Route path="/user/myprofile/change-pw" element={<EditPassword />} />
         <Route path="/user/:username" element={<UserPublicProfile />} />
         <Route path="/add-product" element={<AddProduct />} />
         <Route path="/add-images/:id" element={<AddProductImages />} />
         <Route path="/dashboard/*" element={<DashboardRoutes />} />
+        <Route path="/wishlist" element={<Wishlist />} />
       </Routes>
       {!shouldHideFooter && <Footer />}
       <FloatingChatButton />
