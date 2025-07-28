@@ -39,3 +39,6 @@ dist-ssr
 # Package managers (optional, pick one)
 yarn.lock
 pnpm-lock.yaml
+
+# tinyMCE API key
+/src/services/TinyMCE-api.ts

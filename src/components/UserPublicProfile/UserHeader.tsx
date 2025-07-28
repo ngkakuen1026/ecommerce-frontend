@@ -15,7 +15,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({
   bio,
 }) => {
   return (
-    <div className="bg-cyan-500 rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+    <div className="user-header bg-cyan-500 rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
       {profileImage ? (
         <img
           src={profileImage || "/default-avatar.png"}
@@ -33,7 +33,10 @@ const UserHeader: React.FC<UserHeaderProps> = ({
             ? new Date(registrationDate).toLocaleDateString()
             : "Unknown"}
         </p>
-        <p className="text-lg text-gray-100 mt-1">{bio}</p>
+        <div
+          className="text-lg text-gray-100 mt-1"
+          dangerouslySetInnerHTML={{ __html: bio || "" }}
+        />
       </div>
     </div>
   );

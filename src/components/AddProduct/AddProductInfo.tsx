@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { categoryAPI, productAPI } from "../../services/http-api";
 import authAxios from "../../services/authAxios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import TinyMCEEditor from "../Reuseable/TinyMCEEditor";
 
 const AddProductInfo: React.FC = () => {
   const [userInput, setUserInput] = useState({
@@ -13,9 +15,8 @@ const AddProductInfo: React.FC = () => {
     price: "",
     status: "available",
   });
-  
+
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,12 +32,18 @@ const AddProductInfo: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setUserInput((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleEditorChange = (content: string) => {
+    setUserInput((prev) => ({ ...prev, description: content }));
   };
 
   const handleSubmit = async () => {
@@ -56,11 +63,11 @@ const AddProductInfo: React.FC = () => {
       if (productId) {
         navigate(`/add-images/${productId}`);
       } else {
-        alert("Failed to create product");
+        toast.error("Failed to create product");
       }
     } catch (err) {
       console.error("Error creating product:", err);
-      alert("Something went wrong while creating the product");
+      toast.error("Something went wrong while creating the product");
     }
   };
 
@@ -82,12 +89,9 @@ const AddProductInfo: React.FC = () => {
               value={userInput.title}
               onChange={handleChange}
             />
-            <textarea
-              className="w-full border rounded px-3 py-2 h-32"
-              placeholder="Product Description"
-              name="description"
+            <TinyMCEEditor
               value={userInput.description}
-              onChange={handleChange}
+              onEditorChange={handleEditorChange}
             />
           </div>
 
@@ -113,16 +117,14 @@ const AddProductInfo: React.FC = () => {
         <div className="space-y-6">
           <div className="border rounded-md p-4 space-y-3">
             <h2 className="font-semibold text-gray-800">Product Pricing</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Price"
-                type="number"
-                name="price"
-                value={userInput.price}
-                onChange={handleChange}
-              />
-            </div>
+            <input
+              className="w-full border rounded px-3 py-2"
+              placeholder="Price"
+              type="number"
+              name="price"
+              value={userInput.price}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="border rounded-md p-4 space-y-3">
@@ -136,6 +138,7 @@ const AddProductInfo: React.FC = () => {
               onChange={handleChange}
             />
           </div>
+
           <div className="border rounded-md p-4 space-y-3">
             <h2 className="font-semibold text-gray-800">Status</h2>
             <select
@@ -150,6 +153,7 @@ const AddProductInfo: React.FC = () => {
           </div>
         </div>
       </div>
+
       <div>
         <div className="flex gap-4 justify-end mt-6">
           <button

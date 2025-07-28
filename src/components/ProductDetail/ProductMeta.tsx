@@ -2,20 +2,20 @@ import { Link } from "react-router-dom";
 import type { Product } from "../../types/product";
 import type { UserType } from "../../types/user";
 import { Star } from "lucide-react";
+import DOMPurify from "dompurify";
 
 interface ProductMetaProps {
   product: Product;
   user: UserType | null;
-  averageRating: number; // New prop for average rating
+  averageRating: number;
 }
 
-const ProductMeta = ({
-  product,
-  user,
-  averageRating, // Destructure the average rating
-}: ProductMetaProps) => {
+const ProductMeta = ({ product, user, averageRating }: ProductMetaProps) => {
+  // Sanitize the description
+  const sanitizedDescription = DOMPurify.sanitize(product.description);
+
   return (
-    <>
+    <div className="product-meta">
       <h1 className="text-3xl font-bold">{product.title}</h1>
 
       <div className="text-base font-light">
@@ -60,14 +60,15 @@ const ProductMeta = ({
         </Link>
       </div>
 
-      <p className="text-2xl leading-relaxed text-gray-800 mt-4">
-        {product.description}
-      </p>
+      <div
+        className="text-xl leading-relaxed text-gray-800 mt-4"
+        dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+      />
 
-      <div className="text-2xl font-semibold text-gray-900">
+      <div className="text-2xl font-semibold text-gray-900 mt-4">
         ${product.price}
       </div>
-    </>
+    </div>
   );
 };
 

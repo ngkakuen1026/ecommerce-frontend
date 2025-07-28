@@ -4,6 +4,8 @@ import authAxios from "../services/authAxios";
 import { userAPI } from "../services/http-api";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import DOMPurify from "dompurify";
+import TinyMCEEditor from "../components/Reuseable/TinyMCEEditor";
 
 const Profile = () => {
   const { user, setUser } = useAuth();
@@ -31,6 +33,10 @@ const Profile = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleEditorChange = (content: string) => {
+    setUserInput((prev) => ({ ...prev, bio: content }));
   };
 
   // Handle image file selection and preview
@@ -73,11 +79,6 @@ const Profile = () => {
 
     if (!phonePattern.test(userInput.phone)) {
       toast.error("Please enter a valid HK phone number.");
-      return;
-    }
-
-    if (userInput.bio.length > 300) {
-      toast.error("Bio must be less than 300 characters.");
       return;
     }
 
@@ -143,8 +144,11 @@ const Profile = () => {
     setImagePreview(null);
   };
 
+  // Sanitize the bio
+  const sanitizedBio = DOMPurify.sanitize(user?.bio || "");
+
   return (
-    <div className="w-full max-w-screen-xl mx-auto p-6 sm:px-6">
+    <div className="my-profile w-full max-w-screen-xl mx-auto p-6 sm:px-6">
       <div className="flex flex-row gap-24">
         <div className="flex flex-col items-center w-1/3">
           <div className="relative group">
@@ -212,7 +216,10 @@ const Profile = () => {
             {user?.first_name} {user?.last_name}
           </p>
           <p className="text-gray-600">{user?.email}</p>
-          <p className="text-gray-600 ">{user?.bio}</p>
+          <div
+            className="text-xl leading-relaxed text-gray-800 mt-4"
+            dangerouslySetInnerHTML={{ __html: sanitizedBio }}
+          />
         </div>
 
         <form className="flex-1 space-y-4">
@@ -259,13 +266,10 @@ const Profile = () => {
           </div>
           <div>
             <label className="block font-semibold">Bio</label>
-            <textarea
-              className="w-full border rounded px-3 py-2 h-48 mt-1 focus:outline-none focus:ring-1"
-              placeholder="User bio"
-              name="bio"
-              disabled={!isEditing}
+            <TinyMCEEditor
               value={userInput.bio}
-              onChange={handleChange}
+              onEditorChange={handleEditorChange}
+              disabled={!isEditing} 
             />
           </div>
           <div className="flex space-x-4">

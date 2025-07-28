@@ -7,6 +7,7 @@ import UserComments from "../components/UserPublicProfile/UserComment/UserCommen
 import UserHeader from "../components/UserPublicProfile/UserHeader";
 import UserTabs from "../components/UserPublicProfile/UserTabs";
 import authAxios from "../services/authAxios";
+import DOMPurify from "dompurify";
 
 const UserPublicProfile = () => {
   const { username } = useParams();
@@ -41,9 +42,9 @@ const UserPublicProfile = () => {
         console.error("Error fetching user products:", err);
         setLoading(false);
       });
-
-      
   }, [username]);
+
+  const sanitizedBio = DOMPurify.sanitize(user?.bio || "");
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
   if (!user) return <div className="p-10 text-center">User not found</div>;
@@ -58,7 +59,7 @@ const UserPublicProfile = () => {
             : "https://i.pinimg.com/236x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
         }
         registrationDate={user.registration_date}
-        bio={user.bio}
+        bio={sanitizedBio}
       />
 
       <UserTabs activeTab={activeTab} onChangeTab={setActiveTab} />

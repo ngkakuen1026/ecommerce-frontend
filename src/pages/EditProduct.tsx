@@ -4,20 +4,18 @@ import authAxios from "../services/authAxios";
 import { categoryAPI } from "../services/http-api";
 import type { Product } from "../types/product";
 import ProductBreadcrumb from "../components/Dashboard/Products/EditProduct/ProductBreadcrumb";
+import TinyMCEEditor from "../components/Reuseable/TinyMCEEditor";
 
 const EditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    []
-  );
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Fetch product
     if (!id) return;
     setLoading(true);
     authAxios
@@ -26,7 +24,6 @@ const EditProduct = () => {
       .catch(() => setError("Failed to fetch product"))
       .finally(() => setLoading(false));
 
-    // Fetch categories
     authAxios
       .get(`${categoryAPI.url}`)
       .then((res) => setCategories(res.data.categories || []))
@@ -34,9 +31,7 @@ const EditProduct = () => {
   }, [id]);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     if (!product) return;
     const { name, value } = e.target;
@@ -44,6 +39,11 @@ const EditProduct = () => {
       ...product,
       [name]: name === "category_id" ? Number(value) : value,
     });
+  };
+
+  const handleEditorChange = (content: string) => {
+    if (!product) return;
+    setProduct({ ...product, description: content });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,9 +85,7 @@ const EditProduct = () => {
           {/* Left side */}
           <div className="space-y-6">
             <div className="border rounded-md p-4 space-y-3">
-              <h2 className="font-semibold text-gray-800">
-                Name and Description
-              </h2>
+              <h2 className="font-semibold text-gray-800">Name and Description</h2>
               <div>
                 <label className="text-gray-500">Product Name</label>
                 <input
@@ -102,13 +100,9 @@ const EditProduct = () => {
               </div>
               <div>
                 <label className="text-gray-500">Product Description</label>
-                <textarea
-                  className="w-full border rounded px-3 py-2 h-32"
-                  placeholder="Product Description"
-                  name="description"
+                <TinyMCEEditor
                   value={product.description}
-                  onChange={handleChange}
-                  required
+                  onEditorChange={handleEditorChange}
                 />
               </div>
             </div>
@@ -136,17 +130,15 @@ const EditProduct = () => {
           <div className="space-y-6">
             <div className="border rounded-md p-4 space-y-3">
               <h2 className="font-semibold text-gray-800">Product Pricing</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Price"
-                  type="number"
-                  name="price"
-                  value={product.price}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+              <input
+                className="w-full border rounded px-3 py-2"
+                placeholder="Price"
+                type="number"
+                name="price"
+                value={product.price}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="border rounded-md p-4 space-y-3">

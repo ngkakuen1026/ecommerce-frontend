@@ -4,6 +4,7 @@ import { UploadCloud, Trash2 } from "lucide-react";
 import { productAPI } from "../services/http-api";
 import authAxios from "../services/authAxios";
 import ProductImageBreadcrumb from "../components/Dashboard/Products/EditProductImage/ProductImageBreadcrumb";
+import { toast } from "react-toastify";
 
 interface ProductImage {
   id: string | number;
@@ -75,8 +76,9 @@ const EditProductImage: React.FC = () => {
     try {
       await authAxios.delete(`${productAPI.url}/${id}/images/${imgId}`);
       setDbImages((prev) => prev.filter((img) => img.id !== imgId));
+      toast.success("Image removed successfully!");
     } catch {
-      alert("Failed to remove image.");
+      toast.error("Failed to remove image.");
     }
   };
 
@@ -96,10 +98,10 @@ const EditProductImage: React.FC = () => {
       setDbImages(res.data.images || []);
       setImages([]);
       setPreviewUrls([]);
-      alert("Images uploaded successfully!");
+      toast.success("Images uploaded successfully!");
     } catch (err) {
       console.log("err: " + err);
-      alert("Something went wrong while uploading images.");
+      toast.error("Something went wrong while uploading images.");
     } finally {
       setUploading(false);
     }
