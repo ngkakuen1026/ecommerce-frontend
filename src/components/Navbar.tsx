@@ -326,7 +326,7 @@ const Navbar = () => {
                     </Link>
                     {user?.is_admin === true && (
                       <Link
-                        to="/admin"
+                        to="/admin-panel"
                         onClick={() => setShowMenu(false)}
                         className="flex items-center gap-2 px-2 py-2 text-gray-800 hover:bg-gray-100 rounded transition"
                       >

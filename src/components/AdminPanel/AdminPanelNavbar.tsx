@@ -1,10 +1,10 @@
-import { Box, ScanBarcode, ShoppingBag } from "lucide-react";
+import { Box, ShoppingBag, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const DashboardNavbar = () => {
+const AdminPanelNavbar = () => {
   return (
     <nav className="bg-gray-800 text-white w-64 min-h-screen p-5">
-      <h1 className="text-2xl font-bold mb-8 text-center">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-8 text-center">Admin Panel</h1>
       <ul>
         <li className="mb-4">
           <Link
@@ -17,20 +17,20 @@ const DashboardNavbar = () => {
         </li>
         <li className="mb-4">
           <Link
-            to="products"
+            to="all-users-list"
             className="flex items-center gap-2 cursor-pointer hover:underline"
           >
-            <ScanBarcode size={24} />
-            Products
+            <User size={24} />
+            All Users
           </Link>
         </li>
         <li className="mb-4">
           <Link
-            to="orders"
+            to="all-orders-list"
             className="flex items-center gap-2 cursor-pointer hover:underline"
           >
             <ShoppingBag size={24} />
-            Orders
+            All Orders
           </Link>
         </li>
       </ul>
@@ -38,4 +38,4 @@ const DashboardNavbar = () => {
   );
 };
 
-export default DashboardNavbar;
+export default AdminPanelNavbar;

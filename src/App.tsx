@@ -20,6 +20,8 @@ import Wishlist from "./pages/Wishlist";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import EditPassword from "./pages/EditPassword";
+import AdminPanelRoutes from "./pages/AdminPanel";
+import ProtectedRoute from "./services/ProtectedRoute";
 
 const FloatingChatButton = () => {
   const { isLoggedIn } = useAuth();
@@ -35,7 +37,12 @@ const FloatingChatButton = () => {
 
 const AppContent = () => {
   const location = useLocation();
-  const hideFooterPaths = ["/login", "/register", "/dashboard/*"];
+  const hideFooterPaths = [
+    "/login",
+    "/register",
+    "/dashboard/*",
+    "/admin-panel/*",
+  ];
   const shouldHideFooter =
     hideFooterPaths.includes(location.pathname) ||
     location.pathname.startsWith("/dashboard");
@@ -60,6 +67,9 @@ const AppContent = () => {
         <Route path="/add-images/:id" element={<AddProductImages />} />
         <Route path="/dashboard/*" element={<DashboardRoutes />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route element={<ProtectedRoute isAdminRequired={true} />}>
+          <Route path="/admin-panel/*" element={<AdminPanelRoutes />} />
+        </Route>
       </Routes>
       {!shouldHideFooter && <Footer />}
       <FloatingChatButton />

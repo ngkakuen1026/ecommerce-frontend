@@ -152,11 +152,19 @@ const Profile = () => {
       <div className="flex flex-row gap-24">
         <div className="flex flex-col items-center w-1/3">
           <div className="relative group">
-            <img
-              src={imagePreview || user?.profile_image}
-              alt={`image of user ${user?.username}`}
-              className="w-64 h-64 rounded-full object-cover"
-            />
+            {user?.profile_image ? (
+              <img
+                src={imagePreview || user?.profile_image}
+                alt={`image of user ${user?.username}`}
+                className="w-64 h-64 rounded-full object-cover"
+              />
+            ) : (
+              <img
+                src="https://i.pinimg.com/236x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
+                alt="Default profile"
+                className="w-64 h-64 rounded-full object-cover"
+              />
+            )}
 
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
               <label
@@ -213,7 +221,7 @@ const Profile = () => {
               : "Unknown"}
           </p>
           <p className="text-gray-600 text-xl font-semibold mt-4">
-            {user?.first_name} {user?.last_name}
+            {user?.last_name} {user?.first_name}
           </p>
           <p className="text-gray-600">{user?.email}</p>
           <div
@@ -269,7 +277,7 @@ const Profile = () => {
             <TinyMCEEditor
               value={userInput.bio}
               onEditorChange={handleEditorChange}
-              disabled={!isEditing} 
+              disabled={!isEditing}
             />
           </div>
           <div className="flex space-x-4">
