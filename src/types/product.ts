@@ -5,6 +5,7 @@ export interface Product {
   title: string;
   description: string;
   price: number;
+  discount: number;
   quantity: number;
   status: string;
   image_url: string;
@@ -15,6 +16,7 @@ export interface Product {
     profile_image: string;
     registration_date: string;
   };
+  discountedPrice: number;
 }
 
 export interface ProductImage {

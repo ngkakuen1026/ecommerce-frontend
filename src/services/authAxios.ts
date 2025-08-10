@@ -26,11 +26,11 @@ authAxios.interceptors.response.use(
         );
 
         console.log("Auth Axios Interceptors: " + res);
-        console.log("🔁 Access token refreshed");
+        console.log("Access token refreshed");
 
         return authAxios(originalRequest);
       } catch (refreshError) {
-        console.error("🔁 Refresh token failed", refreshError);
+        console.error("Refresh token failed", refreshError);
         return Promise.reject(refreshError);
       }
     }

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { authAPI } from "../services/http-api";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
+import authAxios from "../services/authAxios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [input, setInput] = useState({ email: "", password: "" });
@@ -25,16 +26,20 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post(`${authAPI.url}/login`, input, {
-        withCredentials: true,
-      });
+      const response = await authAxios.post(`${authAPI.url}/login`, input);
 
       const token = response.data.accessToken;
+
+      const username = response.data.user.username;
+      const isAdmin = response.data.user.isAdmin;
       if (!token) throw new Error("Token not found in response");
 
       // Update global auth state
       await checkAuth();
 
+      toast.success(
+        `Welcome Back! ${isAdmin ? "Admin" : "Normal User"} ${username}`
+      );
       navigate("/");
     } catch (error) {
       let errorMessage = "An unknown error occurred";

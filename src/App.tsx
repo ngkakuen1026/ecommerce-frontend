@@ -4,7 +4,6 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
-import { Contact } from "lucide-react";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProductDetail from "./pages/ProductDetail";
@@ -22,6 +21,7 @@ import { ToastContainer } from "react-toastify";
 import EditPassword from "./pages/EditPassword";
 import AdminPanelRoutes from "./pages/AdminPanel";
 import ProtectedRoute from "./services/ProtectedRoute";
+import Contact from "./pages/Contact";
 
 const FloatingChatButton = () => {
   const { isLoggedIn } = useAuth();
@@ -37,6 +37,12 @@ const FloatingChatButton = () => {
 
 const AppContent = () => {
   const location = useLocation();
+  const hideNavPaths = ["/admin-panel/*"];
+
+  const shouldHideNav =
+    hideNavPaths.includes(location.pathname) ||
+    location.pathname.startsWith("/admin-panel");
+
   const hideFooterPaths = [
     "/login",
     "/register",
@@ -45,12 +51,13 @@ const AppContent = () => {
   ];
   const shouldHideFooter =
     hideFooterPaths.includes(location.pathname) ||
-    location.pathname.startsWith("/dashboard");
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname.startsWith("/admin-panel");
 
   return (
     <div className="min-h-screen flex flex-col">
       <ToastContainer position="top-left" />
-      <Navbar />
+      {!shouldHideNav && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

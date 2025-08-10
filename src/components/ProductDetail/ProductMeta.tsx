@@ -65,8 +65,24 @@ const ProductMeta = ({ product, user, averageRating }: ProductMetaProps) => {
         dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
       />
 
-      <div className="text-2xl font-semibold text-gray-900 mt-4">
-        ${product.price}
+      <div className=" mt-4">
+        {product.discount == 0 ? (
+          <div className="text-2xl font-semibold text-gray-900">
+            <p> ${product.price}</p>
+          </div>
+        ) : (
+          <div className="flex gap-2 items-center">
+            <p className="text-2xl font-semibold text-gray-900 line-through">
+              ${product.price}
+            </p>
+            <p className="text-2xl font-semibold text-cyan-600">
+              ${product.discountedPrice}
+            </p>
+            <p className="text-md">
+              🔥🔥<span className="italic">{product.discount}% off</span>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

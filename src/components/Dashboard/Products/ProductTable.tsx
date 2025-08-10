@@ -47,7 +47,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
           </th>
           <th className="py-3 px-4">Image</th>
           <th className="py-3 px-4">Product Name</th>
-          <th className="py-3 px-4">Price (USD)</th>
+          <th className="py-3 px-4">Original Price (USD)</th>
+          <th className="py-3 px-4">Discounted Price (USD)</th>
           <th className="py-3 px-4">Quantity</th>
           <th className="py-3 px-4">Status</th>
           <th className="py-3 px-4">Category</th>
@@ -88,6 +89,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
               </Link>
             </td>
             <td className="py-2 px-4">${product.price}</td>
+            <td className="py-2 px-4">
+              ${product.discountedPrice}{" "}
+              <span className="italic font-semibold">({Math.round(product.discount)}% off applied)</span>
+            </td>
             <td className="py-2 px-4">{product.quantity}</td>
             <td className="py-2 px-4">
               <span

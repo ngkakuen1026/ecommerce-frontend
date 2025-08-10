@@ -9,7 +9,7 @@ const SiteFeatures = () => {
           <div className="bg-blue-100 p-3 rounded-full mb-4 transition group-hover:bg-blue-500 group-hover:text-white">
             <ShoppingBasket className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-gray-800 mb-1">Place your order</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">Place your order</h2>
           <p className="text-sm text-gray-500 italic">Buy and Selling 24/7</p>
         </div>
 
@@ -18,7 +18,7 @@ const SiteFeatures = () => {
           <div className="bg-blue-100 p-3 rounded-full mb-4 transition group-hover:bg-blue-500 group-hover:text-white">
             <UsersRound className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-gray-800 mb-1">10k+ Active members</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">10k+ Active members</h2>
           <p className="text-sm text-gray-500 italic">Members all around the world</p>
         </div>
 
@@ -27,7 +27,7 @@ const SiteFeatures = () => {
           <div className="bg-blue-100 p-3 rounded-full mb-4 transition group-hover:bg-blue-500 group-hover:text-white">
             <CreditCard className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-gray-800 mb-1">100% Payment Secure</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">100% Payment Secure</h2>
           <p className="text-sm text-gray-500 italic">Pay with secure payment system</p>
         </div>
       </div>

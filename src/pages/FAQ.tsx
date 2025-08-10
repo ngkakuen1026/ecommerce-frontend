@@ -1,11 +1,14 @@
-import React from 'react'
+import React from "react";
+import FAQOverview from "../components/FAQ/FAQOverview";
+import FAQQna from "../components/FAQ/FAQQna";
 
 const FAQ = () => {
   return (
     <div>
-      FAQ
+      <FAQOverview />
+      <FAQQna />
     </div>
-  )
-}
+  );
+};
 
-export default FAQ
+export default FAQ;

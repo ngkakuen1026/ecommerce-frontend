@@ -115,15 +115,23 @@ const ProductCard: React.FC<Props> = ({ product, wishlist, categories }) => {
       </Link>
 
       {/* Product Info */}
-      <h2 className="mt-2 text-md text-gray-600">
-        {categoryName}
-      </h2>
+      <h2 className="mt-2 text-md text-gray-600">{categoryName}</h2>
       <Link to={`/product/${product.id}`}>
         <h2 className="text-lg font-semibold hover:underline">
           {product.title}
         </h2>
       </Link>
-      <p className="text-gray-600">${product.price}</p>
+
+      {product.discount == 0 ? (
+        <div className=" text-gray-600">
+          <p> ${product.price}</p>
+        </div>
+      ) : (
+        <div className="flex gap-2 ">
+          <p className=" text-gray-600 line-through"> ${product.price}</p>
+          <p className=" text-cyan-600"> ${product.discountedPrice}</p> 
+        </div>
+      )}
       {!shouldHideElement && (
         <button className="flex items-center gap-2 mt-2 bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">
           Add to Cart

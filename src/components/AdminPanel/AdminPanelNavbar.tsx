@@ -1,4 +1,4 @@
-import { Box, ShoppingBag, User } from "lucide-react";
+import { Box, Home, ShoppingBag, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminPanelNavbar = () => {
@@ -31,6 +31,15 @@ const AdminPanelNavbar = () => {
           >
             <ShoppingBag size={24} />
             All Orders
+          </Link>
+        </li>
+        <li className="mb-4">
+          <Link
+            to="/"
+            className="flex items-center gap-2 cursor-pointer hover:underline"
+          >
+            <Home size={24} />
+            Back to Home Page
           </Link>
         </li>
       </ul>

@@ -69,6 +69,10 @@ const Wishlist = () => {
     <div className="px-6 py-10">
       <div className="max-w-screen-2xl mx-auto">
         <h1 className="text-4xl font-semibold mb-4">My Wishlist</h1>
+        <h2 className="text-lg text-gray-500 mb-4">
+          ({wishlist.length}) {wishlist.length > 1 ? "items" : "item"} in Your
+          wishlist
+        </h2>
         {wishlist.length === 0 ? (
           <p>Your wishlist is empty.</p>
         ) : (

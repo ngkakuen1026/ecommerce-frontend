@@ -1,4 +1,4 @@
-export interface WishlistItem {
+export interface cartItem {
   product_id: number;
   id: number;
   image_url: string;

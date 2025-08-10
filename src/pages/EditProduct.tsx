@@ -10,7 +10,9 @@ const EditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -59,6 +61,7 @@ const EditProduct = () => {
         quantity: Number(product.quantity),
         status: product.status,
         price: Number(product.price),
+        discount: Number(product.discount),
       });
       navigate(-1);
     } catch {
@@ -85,7 +88,9 @@ const EditProduct = () => {
           {/* Left side */}
           <div className="space-y-6">
             <div className="border rounded-md p-4 space-y-3">
-              <h2 className="font-semibold text-gray-800">Name and Description</h2>
+              <h2 className="font-semibold text-gray-800">
+                Name and Description
+              </h2>
               <div>
                 <label className="text-gray-500">Product Name</label>
                 <input
@@ -130,15 +135,26 @@ const EditProduct = () => {
           <div className="space-y-6">
             <div className="border rounded-md p-4 space-y-3">
               <h2 className="font-semibold text-gray-800">Product Pricing</h2>
-              <input
-                className="w-full border rounded px-3 py-2"
-                placeholder="Price"
-                type="number"
-                name="price"
-                value={product.price}
-                onChange={handleChange}
-                required
-              />
+              <div className="flex gap-4">
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  placeholder="Price"
+                  type="number"
+                  name="price"
+                  value={product.price}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  placeholder="Discount"
+                  type="number"
+                  name="discount"
+                  value={product.discount}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
 
             <div className="border rounded-md p-4 space-y-3">

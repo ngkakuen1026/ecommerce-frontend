@@ -46,7 +46,7 @@ const Category = () => {
 
   // Filtered Products
   const priceFilteredProducts = products.filter((product) => {
-    const price = product.price;
+    const price = product.price * (1 - product.discount / 100);
     const withinMin = minPrice === "" || price >= minPrice;
     const withinMax = maxPrice === "" || price <= maxPrice;
     return withinMin && withinMax;

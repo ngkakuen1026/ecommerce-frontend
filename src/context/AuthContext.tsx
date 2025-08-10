@@ -30,11 +30,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         withCredentials: true,
       });
       setIsLoggedIn(true);
-      setUser(res.data.user); // ✅ Store the new user
+      setUser(res.data.user); // Store the new user
       console.log("Logged in user:", res.data.user);
     } catch (error) {
       setIsLoggedIn(false);
-      setUser(null); // ✅ Clear user on error
+      setUser(null); // Clear user on error
       console.error("Not logged in", error);
     }
   };
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         withCredentials: true,
       });
       setIsLoggedIn(false);
-      setUser(null); // ✅ Clear user on logout
+      setUser(null); // Clear user on logout
     } catch (error) {
       console.error("Logout failed", error);
     }

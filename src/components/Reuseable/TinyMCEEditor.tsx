@@ -1,6 +1,5 @@
 import React from "react";
 import { Editor } from "@tinymce/tinymce-react";
-import { Tiny_MCE_API_KEY } from "../../services/TinyMCE-api";
 
 const TinyMCEEditor: React.FC<{
   value: string; 
@@ -14,7 +13,7 @@ const TinyMCEEditor: React.FC<{
   return (
     <Editor
       value={value}
-      apiKey={Tiny_MCE_API_KEY}
+      apiKey={import.meta.env.VITE_TINY_MCE_API_KEY}
       init={{
         height: 300,
         menubar: false,

@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import authAxios from "../services/authAxios";
 import { userAPI } from "../services/http-api";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import TinyMCEEditor from "../components/Reuseable/TinyMCEEditor";
+import { Trash } from "lucide-react";
 
 const Profile = () => {
   const { user, setUser } = useAuth();
-
+  const [loading, setLoading] = useState(true); // New loading state
   const [userInput, setUserInput] = useState({
     first_name: user?.first_name || "",
     last_name: user?.last_name || "",
@@ -22,6 +23,41 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      setUserInput({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
+        bio: user.bio,
+      });
+      setLoading(false);
+    } else {
+      const fetchUserData = async () => {
+        try {
+          const response = await authAxios.get(`${userAPI.url}/me`);
+          setUser(response.data.user);
+          setLoading(false);
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          setLoading(false);
+        }
+      };
+      fetchUserData();
+    }
+  }, [user, setUser]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      // Redirect only if loading is complete and user is null
+      console.log("Redirecting to /register...");
+      navigate("/register");
+    }
+  }, [user, loading, navigate]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -39,7 +75,6 @@ const Profile = () => {
     setUserInput((prev) => ({ ...prev, bio: content }));
   };
 
-  // Handle image file selection and preview
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -130,6 +165,28 @@ const Profile = () => {
     }
   };
 
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone."
+    );
+
+    if (confirmDelete) {
+      try {
+        const response = await authAxios.delete(`${userAPI.url}/me/delete`, {
+          withCredentials: true,
+        });
+        console.log("Account deleted successfully:", response.data);
+        setUser(null);
+        toast.success("Account deleted successfully.");
+      } catch (error) {
+        console.error("Failed to delete account:", error);
+        toast.error("Failed to delete account. Please try again.");
+      }
+    } else {
+      console.log("Account deletion canceled by the user.");
+    }
+  };
+
   const handleCancel = () => {
     setIsEditing(false);
     setUserInput({
@@ -144,25 +201,67 @@ const Profile = () => {
     setImagePreview(null);
   };
 
+  const handleDeleteImage = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your profile image? This action cannot be undone."
+    );
+
+    if (confirmDelete) {
+      try {
+        const response = await authAxios.delete(
+          `${userAPI.url}/me/profile-image/delete`,
+          {
+            withCredentials: true,
+          }
+        );
+        console.log("Profile image deleted successfully:", response.data);
+
+        // Ensure prevUser is typed correctly
+        setUser((prevUser: UserType | null) => ({
+          ...prevUser,
+          profile_image: null,
+        }));
+
+        toast.success("Profile image deleted successfully.");
+      } catch (error) {
+        console.error("Failed to delete profile image:", error);
+        toast.error("Failed to delete profile image. Please try again.");
+      }
+    } else {
+      console.log("Profile image deletion canceled by the user.");
+    }
+  };
+
   // Sanitize the bio
   const sanitizedBio = DOMPurify.sanitize(user?.bio || "");
+
+  // Show loading message while data is being fetched
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="my-profile w-full max-w-screen-xl mx-auto p-6 sm:px-6">
       <div className="flex flex-row gap-24">
         <div className="flex flex-col items-center w-1/3">
           <div className="relative group">
-            {user?.profile_image ? (
+            {imagePreview ? (
               <img
-                src={imagePreview || user?.profile_image}
+                src={imagePreview}
+                alt="Profile preview"
+                className="w-64 h-64 rounded-full object-cover border border-black"
+              />
+            ) : user?.profile_image ? (
+              <img
+                src={user?.profile_image}
                 alt={`image of user ${user?.username}`}
-                className="w-64 h-64 rounded-full object-cover"
+                className="w-64 h-64 rounded-full object-cover border border-black"
               />
             ) : (
               <img
                 src="https://i.pinimg.com/236x/2c/47/d5/2c47d5dd5b532f83bb55c4cd6f5bd1ef.jpg"
                 alt="Default profile"
-                className="w-64 h-64 rounded-full object-cover"
+                className="w-64 h-64 rounded-full object-cover border border-black"
               />
             )}
 
@@ -187,6 +286,16 @@ const Profile = () => {
                 onChange={handleFileChange}
               />
             </div>
+            {user?.profile_image && (
+              <button
+                type="button"
+                onClick={handleDeleteImage}
+                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                aria-label="Delete profile image"
+              >
+                <Trash />
+              </button>
+            )}
           </div>
           <Link
             to={`/user/${user?.username}`}
@@ -346,6 +455,14 @@ const Profile = () => {
                 </Link>
               </>
             )}
+          </div>
+          <div>
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              onClick={handleDelete}
+            >
+              Delete Account
+            </button>
           </div>
         </form>
       </div>
