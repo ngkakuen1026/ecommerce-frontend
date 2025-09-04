@@ -14,7 +14,7 @@ export interface ReviewWithUser extends UserReviewType {
 }
 
 interface Props {
-  userId: string | number;
+  userId: number;
 }
 
 const UserComments = ({ userId }: Props) => {
@@ -24,6 +24,7 @@ const UserComments = ({ userId }: Props) => {
 
   const fetchReviews = () => {
     if (!userId) return;
+    console.log("Fetching reviews for user ID:", userId);
     authAxios
       .get(`${userAPI.url}/${userId}/reviews`)
       .then((res) => {
@@ -44,6 +45,7 @@ const UserComments = ({ userId }: Props) => {
     fetchReviews();
   }, [userId]);
 
+  // Render component
   return (
     <div className="mt-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">

@@ -6,6 +6,7 @@ import type { Categories } from "../types/category";
 import type { UserType } from "../types/user";
 import type { ProductReviewType } from "../types/productReview";
 import {
+  cartAPI,
   categoryAPI,
   productAPI,
   userAPI,
@@ -18,6 +19,7 @@ import ProductActions from "../components/ProductDetail/ProductAction";
 import ProductReview from "../components/ProductDetail/ProductReview";
 import authAxios from "../services/authAxios";
 import type { WishlistItem } from "../types/wishlist";
+import type { CartItem } from "../types/cart";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +29,7 @@ const ProductDetail = () => {
   const [averageRating, setAverageRating] = useState<number>(0);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,7 +60,6 @@ const ProductDetail = () => {
       })
       .catch((err) => console.error("Failed to load product:", err));
 
-    // Fetch wishlist
     const fetchWishlist = () => {
       authAxios
         .get(`${wishlistAPI.url}/me`)
@@ -65,16 +67,30 @@ const ProductDetail = () => {
         .catch(() => setWishlist([]));
     };
 
+    const fetchCart = () => {
+      authAxios
+        .get(`${cartAPI.url}/me`)
+        .then((res) => setCart(res.data.cart))
+        .catch(() => setCart([]));
+    };
+
     fetchWishlist();
+    fetchCart();
 
     const handleWishlistUpdate = () => {
       fetchWishlist();
     };
 
+    const handleCartUpdate = () => {
+      fetchCart();
+    };
+
     window.addEventListener("wishlist-updated", handleWishlistUpdate);
+    window.addEventListener("cart-updated", handleCartUpdate);
 
     return () => {
       window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+      window.removeEventListener("cart-updated", handleCartUpdate);
     };
   }, [id]);
 
@@ -99,7 +115,7 @@ const ProductDetail = () => {
             user={user}
             averageRating={averageRating}
           />
-          <ProductActions product={product} wishlist={wishlist} />
+          <ProductActions product={product} wishlist={wishlist} cart={cart} />
         </div>
         <div className="lg:col-span-2 space-y-10">
           <ProductReview productId={product.id.toString()} />

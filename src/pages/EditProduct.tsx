@@ -13,18 +13,18 @@ const EditProduct = () => {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
+    setIsLoading(true);
     authAxios
       .get(`/products/${id}`)
       .then((res) => setProduct(res.data.product))
       .catch(() => setError("Failed to fetch product"))
-      .finally(() => setLoading(false));
+      .finally(() => setIsLoading(false));
 
     authAxios
       .get(`${categoryAPI.url}`)
@@ -71,7 +71,7 @@ const EditProduct = () => {
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (isLoading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
   if (!product) return <div className="p-6">Product not found.</div>;
 

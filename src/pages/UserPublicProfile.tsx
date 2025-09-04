@@ -8,18 +8,14 @@ import UserHeader from "../components/UserPublicProfile/UserHeader";
 import UserTabs from "../components/UserPublicProfile/UserTabs";
 import authAxios from "../services/authAxios";
 import DOMPurify from "dompurify";
+import Spinner from "../components/Reuseable/Spinner";
+import type { UserType } from "../types/user";
 
 const UserPublicProfile = () => {
   const { username } = useParams();
   const [products, setProducts] = useState<Product[]>([]);
-  const [user, setUser] = useState<{
-    user_id: number;
-    username: string;
-    profile_image?: string;
-    registration_date?: string;
-    bio?: string;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserType>();
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"products" | "comments">(
     "products"
   );
@@ -36,17 +32,17 @@ const UserPublicProfile = () => {
       .then((res) => {
         setProducts(res.data.products);
         setUser(res.data.user);
-        setLoading(false);
+        setIsLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching user products:", err);
-        setLoading(false);
+        setIsLoading(false);
       });
   }, [username]);
 
   const sanitizedBio = DOMPurify.sanitize(user?.bio || "");
 
-  if (loading) return <div className="p-10 text-center">Loading...</div>;
+  if (isLoading) return <div><Spinner /></div>;
   if (!user) return <div className="p-10 text-center">User not found</div>;
 
   return (
@@ -74,7 +70,7 @@ const UserPublicProfile = () => {
           username={user.username}
         />
       ) : (
-        <UserComments userId={user.user_id} />
+        <UserComments userId={user.id} />
       )}
     </div>
   );

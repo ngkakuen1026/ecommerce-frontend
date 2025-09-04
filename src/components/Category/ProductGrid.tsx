@@ -9,7 +9,7 @@ interface Props {
   products: Product[];
   loading: boolean;
   wishlist: WishlistItem[];
-    categories: Categories[]; 
+  categories: Categories[]; 
 }
 
 const ProductGrid: React.FC<Props> = ({ products, loading, wishlist, categories }) => {
@@ -36,7 +36,7 @@ const ProductGrid: React.FC<Props> = ({ products, loading, wishlist, categories 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6 drop-shadow-lg">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} wishlist={wishlist} categories={categories}/>
+        <ProductCard key={product.id} product={product} wishlist={wishlist} categories={categories} cart={[]}/>
       ))}
     </div>
   );

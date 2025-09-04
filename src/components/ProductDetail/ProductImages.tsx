@@ -21,7 +21,7 @@ const ProductImages = ({ product, selectedImage, onSelect }: Props) => {
           className="md:w-full md:h-[500px] object-contain mb-4 rounded border w-1/2"
         />
       )}
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         {product.images.map((img: ProductImage) => (
           <img
             key={img.id}

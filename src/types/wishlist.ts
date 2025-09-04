@@ -6,4 +6,6 @@ export interface WishlistItem {
   price: number;
   discount: number;
   discountedPrice: number;
+  quantity: number;
+  status: string;
 };

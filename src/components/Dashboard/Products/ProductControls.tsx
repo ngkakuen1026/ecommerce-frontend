@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import Spinner from "../../Reuseable/Spinner";
 
 type ProductControlsProps = {
   searchQuery: string;
@@ -35,7 +36,9 @@ const ProductControls: React.FC<ProductControlsProps> = ({
         className="border border-gray-300 rounded px-2 py-2 text-sm w-full md:w-96"
       />
       {searching && (
-        <span className="text-xs text-gray-500 ml-2">Searching...</span>
+        <span className=" text-gray-500 ml-2 flex items-center gap-2">
+          Searching... <Spinner />
+        </span>
       )}
     </div>
     <div className="flex items-center gap-4">

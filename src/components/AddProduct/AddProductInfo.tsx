@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TinyMCEEditor from "../Reuseable/TinyMCEEditor";
 
-const AddProductInfo: React.FC = () => {
+const AddProductInfo = () => {
   const [userInput, setUserInput] = useState({
     title: "",
     description: "",

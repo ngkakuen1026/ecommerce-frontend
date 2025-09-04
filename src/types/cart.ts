@@ -1,4 +1,4 @@
-export interface cartItem {
+export interface CartItem {
   product_id: number;
   id: number;
   image_url: string;
@@ -6,4 +6,6 @@ export interface cartItem {
   price: number;
   discount: number;
   discountedPrice: number;
+  quantity: number;
+  status: string;
 };

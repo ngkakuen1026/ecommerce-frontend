@@ -3,18 +3,25 @@ import { Link, useLocation } from "react-router-dom";
 import type { Product } from "../../types/product";
 import type { WishlistItem } from "../../types/wishlist";
 import { Heart, ShoppingBasket, User } from "lucide-react";
-import { wishlistAPI } from "../../services/http-api";
+import { cartAPI, wishlistAPI } from "../../services/http-api";
 import authAxios from "../../services/authAxios";
 import { toast } from "react-toastify";
 import type { Categories } from "../../types/category";
+import type { CartItem } from "../../types/cart";
 
 interface Props {
   product: Product;
   wishlist: WishlistItem[];
   categories: Categories[];
+  cart: CartItem[];
 }
 
-const ProductCard: React.FC<Props> = ({ product, wishlist, categories }) => {
+const ProductCard: React.FC<Props> = ({
+  product,
+  wishlist,
+  categories,
+  cart,
+}) => {
   const hasImage = product.image_url && product.image_url.trim() !== "";
   const product_createdTime = new Date(product.created_at);
   const now = new Date();
@@ -25,6 +32,7 @@ const ProductCard: React.FC<Props> = ({ product, wishlist, categories }) => {
   const location = useLocation();
   const shouldHideElement = location.pathname.startsWith("/user/");
   const isWishlisted = wishlist?.some((item) => item.product_id === product.id);
+  const isAddedToCart = cart?.some((item) => item.product_id === product.id);
 
   const addToWishlist = async (productId: number) => {
     try {
@@ -45,6 +53,28 @@ const ProductCard: React.FC<Props> = ({ product, wishlist, categories }) => {
     } catch (err) {
       console.error("Failed to remove from wishlist:", err);
       toast.error("Failed to remove item from wishlist.");
+    }
+  };
+
+  const addToCart = async (productId: number) => {
+    try {
+      await authAxios.post(`${cartAPI.url}/create`, { productId, quantity: 1 });
+      toast.success("Item added to cart!");
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (err) {
+      console.error("Failed to add to cart:", err);
+      toast.error(`Failed to add item to cart: ${err}`);
+    }
+  };
+
+  const removeFromCart = async (productId: number) => {
+    try {
+      await authAxios.delete(`${cartAPI.url}/delete/${productId}`);
+      toast.success("Item removed from cart!");
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (err) {
+      console.error("Failed to remove from cart:", err);
+      toast.error(`Failed to remove item from cart: ${err}`);
     }
   };
 
@@ -129,12 +159,17 @@ const ProductCard: React.FC<Props> = ({ product, wishlist, categories }) => {
       ) : (
         <div className="flex gap-2 ">
           <p className=" text-gray-600 line-through"> ${product.price}</p>
-          <p className=" text-cyan-600"> ${product.discountedPrice}</p> 
+          <p className=" text-cyan-600"> ${product.discountedPrice}</p>
         </div>
       )}
       {!shouldHideElement && (
-        <button className="flex items-center gap-2 mt-2 bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">
-          Add to Cart
+        <button
+          className="flex items-center gap-2 mt-2 bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+          onClick={() =>
+            isAddedToCart ? removeFromCart(product.id) : addToCart(product.id)
+          }
+        >
+          {isAddedToCart ? "Remove From Cart" : "Add to Cart"}
           <ShoppingBasket size={16} />
         </button>
       )}

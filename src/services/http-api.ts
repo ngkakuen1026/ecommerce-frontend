@@ -29,3 +29,7 @@ export const orderAPI = {
 export const cartAPI = {
     url: "http://localhost:3000/api/v1/carts"
 }
+
+export const promotionAPI = {
+    url: "http://localhost:3000/api/v1/promotions"
+}

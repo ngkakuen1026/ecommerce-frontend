@@ -1,9 +1,17 @@
 import AdminPanelNavbar from "../components/AdminPanel/AdminPanelNavbar";
 import { Outlet, Route, Routes } from "react-router-dom";
-import UserList from "./UserList";
 import AdminPanelOverview from "./AdminPanelOverview";
-import UserData from "./UserData";
-import OrderList from "./OrderList";
+import AdminProductList from "./AdminProductList";
+import AdminCategoryList from "./AdminCategoryList";
+import AdminOrderList from "./AdminOrderList";
+import AdminPromocodeList from "./AdminPromocodeList";
+import AdminUserList from "./AdminUserList";
+import AdminUserData from "./AdminUserData";
+import AdminProductData from "./AdminProductData";
+import AdminCategoryData from "./AdminCategoryData";
+import AdminAddCategory from "./AdminAddCategory";
+import AdminPromocodeData from "./AdminPromocodeData";
+import AdminAddPromocode from "./AdminAddPromocode";
 
 const AdminPanel = () => {
   return (
@@ -23,9 +31,17 @@ const AdminPanelRoutes = () => {
     <Routes>
       <Route path="/" element={<AdminPanel />}>
         <Route path="overview" element={<AdminPanelOverview />} />
-        <Route path="all-users-list" element={<UserList />} />
-        <Route path="all-user-list/user/:id" element={<UserData />} />
-        <Route path="all-orders-list" element={<OrderList />} />
+        <Route path="all-products-list" element={<AdminProductList />} />
+        <Route path="all-products-list/product/:id" element={<AdminProductData />} />
+        <Route path="all-users-list" element={<AdminUserList />} />
+        <Route path="all-users-list/user/:id" element={<AdminUserData />} />
+        <Route path="all-orders-list" element={<AdminOrderList />} />
+        <Route path="all-categories" element={<AdminCategoryList />} />
+        <Route path="all-categories/add-category" element={<AdminAddCategory/>} />
+        <Route path="all-categories/category/:id" element={<AdminCategoryData />} />
+        <Route path="all-promo-codes" element={<AdminPromocodeList />} />
+        <Route path="all-promo-codes/add-promo-code" element={<AdminAddPromocode/>} />
+        <Route path="all-promo-codes/promotion/:id" element={<AdminPromocodeData/>} />
       </Route>
     </Routes>
   );

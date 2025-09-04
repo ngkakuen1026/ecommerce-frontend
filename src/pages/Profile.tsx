@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import TinyMCEEditor from "../components/Reuseable/TinyMCEEditor";
 import { Trash } from "lucide-react";
+import type { UserType } from "../types/user";
+import Spinner from "../components/Reuseable/Spinner";
 
 const Profile = () => {
   const { user, setUser } = useAuth();
@@ -53,7 +55,6 @@ const Profile = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      // Redirect only if loading is complete and user is null
       console.log("Redirecting to /register...");
       navigate("/register");
     }
@@ -209,14 +210,10 @@ const Profile = () => {
     if (confirmDelete) {
       try {
         const response = await authAxios.delete(
-          `${userAPI.url}/me/profile-image/delete`,
-          {
-            withCredentials: true,
-          }
+          `${userAPI.url}/me/profile-image/delete`
         );
         console.log("Profile image deleted successfully:", response.data);
 
-        // Ensure prevUser is typed correctly
         setUser((prevUser: UserType | null) => ({
           ...prevUser,
           profile_image: null,
@@ -232,12 +229,11 @@ const Profile = () => {
     }
   };
 
-  // Sanitize the bio
   const sanitizedBio = DOMPurify.sanitize(user?.bio || "");
 
   // Show loading message while data is being fetched
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   return (
@@ -273,7 +269,9 @@ const Profile = () => {
                 }`}
               >
                 {isEditing
-                  ? "Edit Profile Image"
+                  ? user?.profile_image
+                    ? "Edit Profile Image"
+                    : "Add Profile Image"
                   : "Click Edit Profile to Change Profile Image"}
               </label>
               <input
@@ -286,7 +284,7 @@ const Profile = () => {
                 onChange={handleFileChange}
               />
             </div>
-            {user?.profile_image && (
+            {user?.profile_image && isEditing ? (
               <button
                 type="button"
                 onClick={handleDeleteImage}
@@ -295,7 +293,7 @@ const Profile = () => {
               >
                 <Trash />
               </button>
-            )}
+            ) : null}
           </div>
           <Link
             to={`/user/${user?.username}`}

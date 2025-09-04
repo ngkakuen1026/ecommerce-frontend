@@ -36,7 +36,7 @@ const DashboardProducts = () => {
           res = await authAxios.get(`${productAPI.url}/me`);
         } else {
           res = await authAxios.get(
-            `${productAPI.url}/search?query=${encodeURIComponent(searchQuery)}`
+            `${productAPI.url}/me/search?query=${encodeURIComponent(searchQuery)}`
           );
         }
         if (active) {
@@ -58,7 +58,6 @@ const DashboardProducts = () => {
     };
   }, [searchQuery]);
 
-  // Sorting
   const sortedProducts = [...products];
   switch (sortOption) {
     case "priceLowHigh":

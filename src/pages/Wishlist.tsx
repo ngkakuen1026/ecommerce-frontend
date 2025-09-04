@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
 import authAxios from "../services/authAxios";
-import { wishlistAPI } from "../services/http-api";
+import { cartAPI, wishlistAPI } from "../services/http-api";
 import { toast } from "react-toastify";
-import { Minus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-
-type WishlistItem = {
-  product_id: number;
-  id: number;
-  image_url: string;
-  title: string;
-  price: string; // Changed to string to match API response
-  status: string | null; // Use status instead of in_stock
-};
+import type { WishlistItem } from "../types/wishlist";
+import type { CartItem } from "../types/cart";
+import { X } from "lucide-react";
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [cartItems, setCartItems] = useState<number[]>([]);
 
   const fetchWishlist = async () => {
     try {
@@ -31,6 +25,20 @@ const Wishlist = () => {
     }
   };
 
+  const fetchCartItems = async () => {
+    try {
+      const response = await authAxios.get(`${cartAPI.url}/me`);
+      if (response.data.cart) {
+        setCartItems(
+          response.data.cart.map((item: CartItem) => item.product_id)
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+      setCartItems([]);
+    }
+  };
+
   useEffect(() => {
     const handleWishlistUpdate = () => {
       fetchWishlist();
@@ -38,6 +46,7 @@ const Wishlist = () => {
 
     window.addEventListener("wishlist-updated", handleWishlistUpdate);
     fetchWishlist();
+    fetchCartItems();
 
     return () => {
       window.removeEventListener("wishlist-updated", handleWishlistUpdate);
@@ -65,6 +74,22 @@ const Wishlist = () => {
     });
   };
 
+  const addToCart = async (productId: number) => {
+    const quantity = quantities[productId] || 1;
+    try {
+      await authAxios.post(`${cartAPI.url}/create`, {
+        productId,
+        quantity,
+      });
+      toast.success("Item added to cart!");
+      window.dispatchEvent(new Event("cart-updated"));
+      fetchCartItems();
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      toast.error("Failed to add item to cart.");
+    }
+  };
+
   return (
     <div className="px-6 py-10">
       <div className="max-w-screen-2xl mx-auto">
@@ -74,100 +99,143 @@ const Wishlist = () => {
           wishlist
         </h2>
         {wishlist.length === 0 ? (
-          <p>Your wishlist is empty.</p>
+          <div className="flex flex-col items-center justify-center h-full p-6">
+            <img
+              src="../src/assets/empty-wishlist.png"
+              alt="Empty Wishlist"
+              className="w-[48rem] h-auto mb-4"
+            />
+            <p className="text-gray-600 text-lg font-semibold">
+              Your wishlist is empty.
+            </p>
+            <p className="text-gray-400 text-center mt-2">
+              Add items to your wishlist to keep track of your favorites!
+            </p>
+            <Link
+              to="/categories"
+              className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition"
+            >
+              Start Shopping
+            </Link>
+          </div>
         ) : (
-          <>
-            <table className="min-w-full ">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-4 text-left ">Product Image</th>
-                  <th className="py-3 px-4 text-left ">Product name</th>
-                  <th className="py-3 px-4 text-left ">Price</th>
-                  <th className="py-3 px-4 text-left ">Stock status</th>
-                  <th className="py-3 px-4 text-left ">Quantity</th>
-                  <th className="py-3 px-4 text-left ">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {wishlist.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <img
-                        src={
-                          item.image_url
-                            ? item.image_url
-                            : "https://static.audison.com/media/2022/10/no-product-image.png"
-                        }
-                        alt={item.title}
-                        className="w-48 h-48 object-cover mr-4 border border-gray-300 rounded-lg p-1"
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        to={`/product/${item.product_id}`}
-                        className="hover:underline"
-                      >
-                        <span className="font-semibold">{item.title}</span>
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+          <table className="min-w-full ">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="py-3 px-4 text-left"></th>
+                <th className="py-3 px-4 text-left">Product Image</th>
+                <th className="py-3 px-4 text-left">Product name</th>
+                <th className="py-3 px-4 text-left">Price</th>
+                <th className="py-3 px-4 text-left">Stock status</th>
+                <th className="py-3 px-4 text-left">Quantity</th>
+                <th className="py-3 px-4 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {wishlist.map((item: WishlistItem) => (
+                <tr key={item.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => removeFromWishlist(item.product_id)}
+                      className="px-4 py-2 hover:opacity-70"
+                    >
+                      <X size={16} />
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <img
+                      src={
+                        item.image_url
+                          ? item.image_url
+                          : "https://static.audison.com/media/2022/10/no-product-image.png"
+                      }
+                      alt={item.title}
+                      className="w-48 h-48 object-cover mr-4 border border-gray-300 rounded-lg p-1"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Link
+                      to={`/product/${item.product_id}`}
+                      className="hover:underline"
+                    >
+                      <span className="font-medium">{item.title}</span>
+                    </Link>
+                  </td>
+                  {item.discount === 0 ? (
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
                       ${item.price}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          item.status === "available"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {item.status ? item.status.toUpperCase() : "N/A"}
-                      </span>
+                  ) : (
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
+                      <span className="line-through">${item.price}</span> $
+                      {item.discountedPrice}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
+                  )}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        item.status === "available"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {item.status ? item.status.toUpperCase() : "N/A"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center border rounded-lg overflow-hidden w-fit">
+                      <span className="px-4 mx-4 ">
+                        {quantities[item.product_id] || 1}
+                      </span>
+                      <div className="flex flex-col">
                         <button
-                          onClick={() =>
-                            handleQuantityChange(item.product_id, -1)
-                          }
-                          className="bg-gray-200 text-gray-700 px-2 rounded-l"
-                          disabled={(quantities[item.product_id] || 1) <= 1}
-                        >
-                          <Minus size={18} />
-                        </button>
-                        <input
-                          type="number"
-                          value={quantities[item.product_id] || 1}
-                          readOnly
-                          className="w-16 border text-center rounded"
-                        />
-                        <button
+                          className={`px-3 hover:opacity-70 ${
+                            cartItems.includes(item.product_id)
+                              ? "cursor-not-allowed"
+                              : "cursor-pointer hover:opacity-70"
+                          }`}
                           onClick={() =>
                             handleQuantityChange(item.product_id, 1)
                           }
-                          className="bg-gray-200 text-gray-700 px-2 rounded-r"
-                          disabled={(quantities[item.product_id] || 1) >= 20}
+                          disabled={cartItems.includes(item.product_id)}
                         >
-                          <Plus size={18} />
+                          ▲
+                        </button>
+                        <button
+                          className={`px-3 hover:opacity-70 ${
+                            cartItems.includes(item.product_id)
+                              ? "cursor-not-allowed"
+                              : "cursor-pointer hover:opacity-70"
+                          }`}
+                          onClick={() =>
+                            handleQuantityChange(item.product_id, -1)
+                          }
+                          disabled={cartItems.includes(item.product_id)}
+                        >
+                          ▼
                         </button>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => removeFromWishlist(item.product_id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition mr-2"
-                      >
-                        Remove
-                      </button>
-                      <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-                        Add to Cart
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => addToCart(item.product_id)}
+                      className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition ${
+                        cartItems.includes(item.product_id)
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      disabled={cartItems.includes(item.product_id)}
+                    >
+                      {cartItems.includes(item.product_id)
+                        ? "Already in the cart"
+                        : "Add to Cart"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

@@ -79,7 +79,7 @@ const TeamIntro = () => {
                   src={member.image}
                   className="object-cover w-[16rem] h-[16rem] rounded-full mb-2"
                 />
-          <h1 className="text-2xl font-semibold text-cyan-600">
+                <h1 className="text-2xl font-semibold text-cyan-600">
                   {member.position}
                 </h1>
                 <h2 className="text-lg text-gray-600">{member.name}</h2>

@@ -64,14 +64,16 @@ input[type="range"]::-moz-range-thumb {
 
 .product-meta ul,
 .my-profile ul,
-.user-header ul {
+.user-header ul,
+.admin-product-info ul {
   list-style-type: disc;
   padding-left: 20px;
 }
 
 .product-meta ol,
 .my-profile ol,
-.user-header ol {
+.user-header ol,
+.admin-product-info ol {
   list-style-type: decimal;
   padding-left: 20px;
 }

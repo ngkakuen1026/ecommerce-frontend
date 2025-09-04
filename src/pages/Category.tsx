@@ -30,7 +30,7 @@ const Category = () => {
   const [tempMinPrice, setTempMinPrice] = useState<number>(0);
   const [tempMaxPrice, setTempMaxPrice] = useState<number>(100000);
 
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -136,7 +136,7 @@ const Category = () => {
 
     const fetchByCategory = async (cat: Categories) => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const res = await authAxios.get(`${productAPI.url}/category/${cat.id}`);
         setProducts(res.data.products);
         setSelectedCategory(cat);
@@ -146,13 +146,13 @@ const Category = () => {
       } catch (err) {
         console.error("Failed to fetch category products:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     const fetchBySearch = async (term: string) => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const res = await authAxios.get(
           `${productAPI.url}/search?query=${encodeURIComponent(term)}`
         );
@@ -163,7 +163,7 @@ const Category = () => {
       } catch (err) {
         console.error("Failed to fetch search products:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -284,7 +284,7 @@ const Category = () => {
             {/* Product List */}
             <ProductGrid
               products={currentProducts}
-              loading={loading}
+              loading={isLoading}
               wishlist={wishlist}
               categories={categories}
             />

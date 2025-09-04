@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { categoryAPI, productAPI, wishlistAPI } from "../../services/http-api";
+import { cartAPI, categoryAPI, productAPI, wishlistAPI } from "../../services/http-api";
 import type { Product } from "../../types/product";
 import { Link } from "react-router-dom";
 import { RefreshCcw } from "lucide-react";
@@ -7,12 +7,14 @@ import ProductCard from "../Reuseable/ProductCard";
 import authAxios from "../../services/authAxios";
 import type { WishlistItem } from "../../types/wishlist";
 import type { Categories } from "../../types/category";
+import type { CartItem } from "../../types/cart";
 
 const BrowseByProducts = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [categories, setCategories] = useState<Categories[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -31,6 +33,13 @@ const BrowseByProducts = () => {
         .catch(() => setWishlist([]));
     };
 
+    const fetchCart = () => {
+      authAxios
+        .get(`${cartAPI.url}/me`)
+        .then((res) => setCart(res.data.cart))
+        .catch(() => setCart([]));
+    };
+
     authAxios
       .get(`${productAPI.url}`)
       .then((res) => {
@@ -43,15 +52,22 @@ const BrowseByProducts = () => {
 
     fetchCategories();
     fetchWishlist();
+    fetchCart();
 
     const handleWishlistUpdate = () => {
       fetchWishlist();
     };
 
+    const handleCartUpdate = () => {
+      fetchCart();
+    };
+
     window.addEventListener("wishlist-updated", handleWishlistUpdate);
+    window.addEventListener("cart-updated", handleCartUpdate);
 
     return () => {
       window.removeEventListener("wishlist-updated", handleWishlistUpdate);
+      window.removeEventListener("cart-updated", handleCartUpdate);
     };
   }, []);
 
@@ -90,6 +106,7 @@ const BrowseByProducts = () => {
               product={product}
               wishlist={wishlist}
               categories={categories}
+              cart={cart}
             />
           ))}
         </div>
